@@ -3,7 +3,7 @@ Aiming to develop state-of-art deep learning model for semantic segmentation of 
 
 ## Step 0: Fork this GitHub repository 
 ```
-git clone https://github.com/mikami520/DeepLearningEustachianTube-1.git
+git clone https://github.com/mikami520/CIS2-EustachianTube.git
 ```
 
 ## Step 1: Set up two environments using .yml files in environments/ (virtual environment is recommended)
@@ -14,7 +14,7 @@ To Do:
 ### Step 2.1: Register data to template
 Activate scripting environment
 ```
-cd scripts/preprocessing
+cd <path to repo>/preprocessing
 ```
 Register data to template (can be used for multiple segmentations propagation)
 ```

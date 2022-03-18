@@ -115,7 +115,7 @@ printed at the start of the inference.
 ## Step 7: Evaluate inference
 To compute the dice score and average hausdorff distance:
 ```
-cd <path to github>/metrics
+cd <path to repo>/metrics
 ```
 Run the metrics.py to output a CSV file that contain the dice score and hausdorff distance for each segmentation:
 ```

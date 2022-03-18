@@ -26,7 +26,7 @@ LabelName1 LabelValue1 LabelName2 LabelValue2 LabelName3 LabelValue3 ...
 ```
 For example, if I have two labels for maxillary sinus named L-MS and R-MS
 ```
-python3 registration.py <full path of base dir> <relative path to nifti images dir> <relative path to segmentations dir> L-MS 1 R-MS 2
+python3 registration.py /Users/mikamixiao/Desktop images labels L-MS 1 R-MS 2
 ```
 Final output of registered images and segmentations will be saved in 
 ```

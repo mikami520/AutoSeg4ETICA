@@ -1,5 +1,5 @@
 # Automated Segmentation and Registration for Eustachian Tube Disfunction
-Aiming to develop state-of-art deep learning model for semantic segmentation of Eustachian tube CT scans with the use of supervised model - nnU-net - and unsupervised models - VoxelMorph and DeepReg.
+Aiming to develop state-of-art deep learning model for semantic segmentation of Eustachian tube CT scans with the use of supervised model - nnUNet - and unsupervised models - VoxelMorph and DeepReg.
 
 ## Step 0: Fork this GitHub repository 
 ```

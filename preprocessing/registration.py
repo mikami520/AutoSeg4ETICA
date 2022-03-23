@@ -32,7 +32,7 @@ def split_and_registration(template, target, base, images_path, seg_path, fomat,
     print('---'*10)
     print('Performing the template and target image registration')
     transform_forward = ants.registration(fixed=template_image, moving=target_image,
-                                          type_of_transform="Affine", verbose=False)
+                                          type_of_transform="Similarity", verbose=False)
     print('---'*10)
     print('Applying the transfmation for label propagation and image registration')
     predicted_targets_image = ants.apply_transforms(
@@ -187,7 +187,7 @@ def checkSegFormat(base, segmentation, paired_list, check=False):
             image = ants.image_read(os.path.join(path, file))
             image.to_file(os.path.join(save_dir, name + '.nii.gz'))
         elif file.endswith('nii.gz'):
-            shutil.move(os.path.join(path, file), save_dir)
+            shutil.copy(os.path.join(path, file), save_dir)
 
     return save_dir
 
@@ -279,9 +279,11 @@ def main(argv):
                 split_and_registration(
                     template, target, base, images_path, seg_output_path, fomat, checked=True)
 
-        image = ants.image_read(os.path.join(base, images_path, template + '.' + fomat))
+        image = ants.image_read(os.path.join(
+            base, images_path, template + '.' + fomat))
         image.to_file(os.path.join(base, images_output, template + '.nii.gz'))
-        shutil.move(os.path.join(base, seg_output_path, template + '.nii.gz'), labels_output)
+        shutil.copy(os.path.join(base, seg_output_path,
+                    template + '.nii.gz'), labels_output)
     else:
         seg_output_path = checkSegFormat(
             base, segmentation, paired_list, check=False)
@@ -295,10 +297,12 @@ def main(argv):
                 split_and_registration(
                     template, target, base, images_path, seg_output_path, fomat, checked=False)
 
-
-        image = ants.image_read(os.path.join(base, images_path, template + '.' + fomat))
+        image = ants.image_read(os.path.join(
+            base, images_path, template + '.' + fomat))
         image.to_file(os.path.join(base, images_output, template + '.nii.gz'))
-        shutil.move(os.path.join(base, seg_output_path, template + '.nii.gz'), labels_output)
+        shutil.copy(os.path.join(base, seg_output_path,
+                    template + '.nii.gz'), labels_output)
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])

@@ -1,10 +1,3 @@
-"""
-lookup_tables.py
-
-all of the lookup-tables functions are borrowed from DeepMind surface_distance repository
-
-"""
-
 # Copyright 2018 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,13 +11,23 @@ all of the lookup-tables functions are borrowed from DeepMind surface_distance r
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Lookup tables used by surface distance metrics."""
-
-
+from __future__ import absolute_import
 from __future__ import division
+from __future__ import print_function
+
+import math
 import numpy as np
 ENCODE_NEIGHBOURHOOD_3D_KERNEL = np.array([[[128, 64], [32, 16]], [[8, 4],
                                                                    [2, 1]]])
+
+"""
+
+lookup_tables.py
+
+all of the lookup-tables functions are borrowed from DeepMind surface_distance repository
+
+"""
+
 
 # _NEIGHBOUR_CODE_TO_NORMALS is a lookup table.
 # For every binary neighbour code
@@ -361,10 +364,8 @@ _NEIGHBOUR_CODE_TO_NORMALS = [
 
 def create_table_neighbour_code_to_surface_area(spacing_mm):
     """Returns an array mapping neighbourhood code to the surface elements area.
-
     Note that the normals encode the initial surface area. This function computes
     the area corresponding to the given `spacing_mm`.
-
     Args:
       spacing_mm: 3-element list-like structure. Voxel spacing in x0, x1 and x2
         direction.
@@ -395,21 +396,17 @@ ENCODE_NEIGHBOURHOOD_2D_KERNEL = np.array([[8, 4], [2, 1]])
 
 def create_table_neighbour_code_to_contour_length(spacing_mm):
     """Returns an array mapping neighbourhood code to the contour length.
-
     For the list of possible cases and their figures, see page 38 from:
     https://nccastaff.bournemouth.ac.uk/jmacey/MastersProjects/MSc14/06/thesis.pdf
-
     In 2D, each point has 4 neighbors. Thus, are 16 configurations. A
     configuration is encoded with '1' meaning "inside the object" and '0' "outside
     the object". The points are ordered: top left, top right, bottom left, bottom
     right.
-
     The x0 axis is assumed vertical downward, and the x1 axis is horizontal to the
     right:
      (0, 0) --> (0, 1)
        |
      (1, 0)
-
     Args:
       spacing_mm: 2-element list-like structure. Voxel spacing in x0 and x1
         directions.

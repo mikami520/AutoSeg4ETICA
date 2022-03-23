@@ -86,7 +86,7 @@ def checkSegFormat(base, segmentation, type):
             image = ants.image_read(os.path.join(path, file))
             image.to_file(os.path.join(save_dir, name + '.nii.gz'))
         elif file.endswith('nii.gz'):
-            shutil.move(os.path.join(path, file), save_dir)
+            shutil.copy(os.path.join(path, file), save_dir)
 
     return save_dir
 

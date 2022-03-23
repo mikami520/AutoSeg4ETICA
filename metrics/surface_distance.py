@@ -1,10 +1,3 @@
-"""
-surface_distance.py
-
-all of the surface_distance functions are borrowed from DeepMind surface_distance repository
-
-"""
-
 # Copyright 2018 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,16 +9,22 @@ all of the surface_distance functions are borrowed from DeepMind surface_distanc
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS-IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-"""Module exposing surface distance based measures."""
-
-
-
-
+# See the License for the specific language 
+from __future__ import absolute_import
 from __future__ import division
-from scipy import ndimage
+from __future__ import print_function
+
+import lookup_tables  # pylint: disable=relative-beyond-top-level
 import numpy as np
+from scipy import ndimage
+
+"""
+
+surface_distance.py
+
+all of the surface_distance functions are borrowed from DeepMind surface_distance repository
+
+"""
 def _assert_is_numpy_array(name, array):
     """Raises an exception if `array` is not a numpy array."""
     if not isinstance(array, np.ndarray):
@@ -57,14 +56,11 @@ def _assert_is_bool_numpy_array(name, array):
 
 def _compute_bounding_box(mask):
     """Computes the bounding box of the masks.
-
     This function generalizes to arbitrary number of dimensions great or equal
     to 1.
-
     Args:
       mask: The 2D or 3D numpy mask, where '0' means background and non-zero means
         foreground.
-
     Returns:
       A tuple:
        - The coordinates of the first point of the bounding box (smallest on all
@@ -125,11 +121,9 @@ def _crop_to_bounding_box(mask, bbox_min, bbox_max):
 
 def _sort_distances_surfels(distances, surfel_areas):
     """Sorts the two list with respect to the tuple of (distance, surfel_area).
-
     Args:
       distances: The distances from A to B (e.g. `distances_gt_to_pred`).
       surfel_areas: The surfel areas for A (e.g. `surfel_areas_gt`).
-
     Returns:
       A tuple of the sorted (distances, surfel_areas).
     """
@@ -141,13 +135,11 @@ def compute_surface_distances(mask_gt,
                               mask_pred,
                               spacing_mm):
     """Computes closest distances from all surface points to the other surface.
-
     This function can be applied to 2D or 3D tensors. For 2D, both masks must be
     2D and `spacing_mm` must be a 2-element list. For 3D, both masks must be 3D
     and `spacing_mm` must be a 3-element list. The description is done for the 2D
     case, and the formulation for the 3D case is present is parenthesis,
     introduced by "resp.".
-
     Finds all contour elements (resp surface elements "surfels" in 3D) in the
     ground truth mask `mask_gt` and the predicted mask `mask_pred`, computes their
     length in mm (resp. area in mm^2) and the distance to the closest point on the
@@ -155,13 +147,11 @@ def compute_surface_distances(mask_gt,
     together with the corresponding contour lengths (resp. surfel areas). If one
     of the masks is empty, the corresponding lists are empty and all distances in
     the other list are `inf`.
-
     Args:
       mask_gt: 2-dim (resp. 3-dim) bool Numpy array. The ground truth mask.
       mask_pred: 2-dim (resp. 3-dim) bool Numpy array. The predicted mask.
       spacing_mm: 2-element (resp. 3-element) list-like structure. Voxel spacing
         in x0 anx x1 (resp. x0, x1 and x2) directions.
-
     Returns:
       A dict with:
       "distances_gt_to_pred": 1-dim numpy array of type float. The distances in mm
@@ -176,7 +166,6 @@ def compute_surface_distances(mask_gt,
       "surfel_areas_pred": 1-dim numpy array of type float. The length of the
         of the predicted contours in mm (resp. the surface elements area in
         mm^2) in the same order as distances_gt_to_pred.
-
     Raises:
       ValueError: If the masks and the `spacing_mm` arguments are of incompatible
         shape or type. Or if the masks are not 2D or 3D.
@@ -297,16 +286,13 @@ def compute_surface_distances(mask_gt,
 
 def compute_average_surface_distance(surface_distances):
     """Returns the average surface distance.
-
     Computes the average surface distances by correctly taking the area of each
     surface element into account. Call compute_surface_distances(...) before, to
     obtain the `surface_distances` dict.
-
     Args:
       surface_distances: dict with "distances_gt_to_pred", "distances_pred_to_gt"
       "surfel_areas_gt", "surfel_areas_pred" created by
       compute_surface_distances()
-
     Returns:
       A tuple with two float values:
         - the average distance (in mm) from the ground truth surface to the
@@ -328,18 +314,15 @@ def compute_average_surface_distance(surface_distances):
 
 def compute_robust_hausdorff(surface_distances, percent):
     """Computes the robust Hausdorff distance.
-
     Computes the robust Hausdorff distance. "Robust", because it uses the
     `percent` percentile of the distances instead of the maximum distance. The
     percentage is computed by correctly taking the area of each surface element
     into account.
-
     Args:
       surface_distances: dict with "distances_gt_to_pred", "distances_pred_to_gt"
         "surfel_areas_gt", "surfel_areas_pred" created by
         compute_surface_distances()
       percent: a float value between 0 and 100.
-
     Returns:
       a float value. The robust Hausdorff distance in mm.
     """
@@ -370,18 +353,15 @@ def compute_robust_hausdorff(surface_distances, percent):
 
 def compute_surface_overlap_at_tolerance(surface_distances, tolerance_mm):
     """Computes the overlap of the surfaces at a specified tolerance.
-
     Computes the overlap of the ground truth surface with the predicted surface
     and vice versa allowing a specified tolerance (maximum surface-to-surface
     distance that is regarded as overlapping). The overlapping fraction is
     computed by correctly taking the area of each surface element into account.
-
     Args:
       surface_distances: dict with "distances_gt_to_pred", "distances_pred_to_gt"
         "surfel_areas_gt", "surfel_areas_pred" created by
         compute_surface_distances()
       tolerance_mm: a float value. The tolerance in mm
-
     Returns:
       A tuple of two float values. The overlap fraction in [0.0, 1.0] of the
       ground truth surface with the predicted surface and vice versa.
@@ -401,20 +381,17 @@ def compute_surface_overlap_at_tolerance(surface_distances, tolerance_mm):
 
 def compute_surface_dice_at_tolerance(surface_distances, tolerance_mm):
     """Computes the _surface_ DICE coefficient at a specified tolerance.
-
     Computes the _surface_ DICE coefficient at a specified tolerance. Not to be
     confused with the standard _volumetric_ DICE coefficient. The surface DICE
     measures the overlap of two surfaces instead of two volumes. A surface
     element is counted as overlapping (or touching), when the closest distance to
     the other surface is less or equal to the specified tolerance. The DICE
     coefficient is in the range between 0.0 (no overlap) to 1.0 (perfect overlap).
-
     Args:
       surface_distances: dict with "distances_gt_to_pred", "distances_pred_to_gt"
         "surfel_areas_gt", "surfel_areas_pred" created by
         compute_surface_distances()
       tolerance_mm: a float value. The tolerance in mm
-
     Returns:
       A float value. The surface DICE coefficient in [0.0, 1.0].
     """
@@ -432,14 +409,11 @@ def compute_surface_dice_at_tolerance(surface_distances, tolerance_mm):
 
 def compute_dice_coefficient(mask_gt, mask_pred):
     """Computes soerensen-dice coefficient.
-
     compute the soerensen-dice coefficient between the ground truth mask `mask_gt`
     and the predicted mask `mask_pred`.
-
     Args:
       mask_gt: 3-dim Numpy array of type bool. The ground truth mask.
       mask_pred: 3-dim Numpy array of type bool. The predicted mask.
-
     Returns:
       the dice coeffcient as float. If both masks are empty, the result is NaN.
     """

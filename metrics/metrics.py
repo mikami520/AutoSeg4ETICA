@@ -6,6 +6,7 @@ import pandas as pd
 import glob
 import os
 import surface_distance
+import hausdorff
 import nrrd
 import shutil
 

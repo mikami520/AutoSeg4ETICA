@@ -3,7 +3,6 @@ import pyvista as pv
 import argparse
 import os
 import glob
-import matplotlib.pyplot as plt
 
 
 def parse_command_line():

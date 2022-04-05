@@ -21,21 +21,21 @@ def parse_command_line():
 
 def distanceVertex2Mesh(mesh, vertex):
     if not mesh.is_all_triangles():
-        print('Only Triangulations is allowed (Faces do not have 3 Vertices)!')
+        print('only triangulations is allowed (Faces do not have 3 Vertices)!')
         return np.Inf
 
     if hasattr(mesh, 'faces') and hasattr(mesh, 'points'):
         points = np.array(mesh.points)
         faces = mesh.faces.reshape((-1, 4))[:, 1:4]
     else:
-        print('Mesh Structure must contain fields ''vertices'' and ''faces''!')
+        print('mesh structure must contain fields ''vertices'' and ''faces''!')
 
     numV, dim = points.shape
     numF, numVF = faces.shape
     numT, dimT = vertex.shape
 
     if dim != dimT or dim != 3:
-        print('Mesh and Vertices must be in 3D space!')
+        print('mesh and vertices must be in 3D space!')
         return np.Inf
 
     d_min = np.matrix(np.ones((numT, 1)) * np.inf)
@@ -77,6 +77,7 @@ def distanceVertex2Mesh(mesh, vertex):
                 d = distance3DV2F(v1, v2, v3, v4)
                 if d < d_min[i]:
                     d_min[i] = d
+
     print("third check finished !!!")
     return d_min
 
@@ -142,16 +143,21 @@ def main():
     for i in glob.glob(os.path.join(base, gt_path) + '/*.vtk'):
         scan_name = os.path.basename(i).split('.')[0].split('_')[1]
         scan_id = os.path.basename(i).split('.')[0].split('_')[2]
-        output_sub_dir = os.path.join(base, 'output', scan_name + '_' + scan_id)
+        output_sub_dir = os.path.join(
+            base, 'output', scan_name + '_' + scan_id)
         try:
             os.mkdir(output_sub_dir)
         except:
             print(f'{output_sub_dir} already exists')
 
         gt_mesh = pv.read(i)
-        pred_mesh = pv.read(os.path.join(base, pred_path, 'pred_' + scan_name + '_' + scan_id + '.vtk'))
+        pred_mesh = pv.read(os.path.join(
+            base, pred_path, 'pred_' + scan_name + '_' + scan_id + '.vtk'))
         pred_vertices = np.array(pred_mesh.points)
         d = distanceVertex2Mesh(gt_mesh, pred_vertices)
+        if(d == np.Inf):
+            print('something with mesh is wrong !!!')
+            return
         np.savetxt(os.path.join(base, output_sub_dir, scan_id + '.txt'), d)
 
 

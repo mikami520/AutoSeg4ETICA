@@ -8,6 +8,7 @@ import os
 import surface_distance
 import nrrd
 import shutil
+import distanceVertex2Mesh
 
 
 def parse_command_line():
@@ -23,24 +24,42 @@ def parse_command_line():
                         help="Relative path of predicted segmentation directory")
     parser.add_argument('-sp', metavar='save path', type=str,
                         help="Relative path of CSV file directory to save")
+    parser.add_argument('-vt', metavar='validation type', type=str, nargs='+',
+                        help='''Validation type
+                        dsc: Dice Score
+                        ahd: Average Hausdorff Distance,
+                        whd: Weighted Hausdorff Distance
+                        ''')
+    parser.add_argument('-pm', metavar='probability map path', type=str,
+                        help="Relative path of text file directory of probability map")
     argv = parser.parse_args()
     return argv
 
 
-def dice_coefficient_and_hausdorff_distance(filename, img_np_gt, img_np_pred, num_classes, spacing):
+def dice_coefficient_and_hausdorff_distance(filename, img_np_gt, img_np_pred, num_classes, spacing, probability_map, dsc, ahd, whd):
     df = pd.DataFrame()
     data_gt, bool_gt = make_one_hot(img_np_gt, num_classes)
     data_pred, bool_pred = make_one_hot(img_np_pred, num_classes)
     for i in range(1, num_classes):
-        volume_sum = data_gt[i].sum() + data_pred[i].sum()
-        if volume_sum == 0:
-            return np.NaN
+        df1 = pd.DataFrame([[filename, i]], columns=[
+                           'File ID', 'Label Value'])
+        if dsc:
+            volume_sum = data_gt[i].sum() + data_pred[i].sum()
+            if volume_sum == 0:
+                return np.NaN
 
-        volume_intersect = (data_gt[i] & data_pred[i]).sum()
-        dice = 2*volume_intersect / volume_sum
-        ahd = average_hausdorff_distance(bool_gt[i], bool_pred[i], spacing)
-        df1 = pd.DataFrame([[filename, i, dice, ahd]], columns=[
-                           'File ID', 'Label Value', 'Dice Score', 'Mean Hausdorff Distance'])
+            volume_intersect = (data_gt[i] & data_pred[i]).sum()
+            dice = 2*volume_intersect / volume_sum
+            df1['Dice Score'] = dice
+
+        if ahd:
+            avd = average_hausdorff_distance(bool_gt[i], bool_pred[i], spacing)
+            df1['Average Hausdorff Distance'] = avd
+
+        if whd:
+            wgd = weighted_hausdorff_distance(gt, pred, probability_map)
+            df1['Weighted Hausdorff Distance'] = wgd
+
         df = pd.concat([df, df1])
     return df
 
@@ -62,6 +81,9 @@ def average_hausdorff_distance(img_np_gt, img_np_pred, spacing):
         img_np_gt, img_np_pred, spacing)
     gp, pg = surface_distance.compute_average_surface_distance(surf_distance)
     return (gp + pg) / 2
+
+
+def weighted_hausdorff_distance(img_np_gt, img_np_pred, probability_map):
 
 
 def checkSegFormat(base, segmentation, type):
@@ -193,6 +215,23 @@ def main():
     gt_path = args.gp
     pred_path = args.pp
     save_path = args.sp
+    validation_type = args.vt
+    probability_map_path = args.pm
+    probability_map = np.loadtxt(os.path.join(base, probability_map_path))
+    dsc = False
+    ahd = False
+    whd = False
+    for i in range(len(validation_type)):
+        if validation_type[i] == 'dsc':
+            dsc = True
+        elif validation_type[i] == 'ahd':
+            ahd = True
+        elif validation_type[i] == 'whd':
+            whd = True
+        else:
+            print('wrong validation type, please choose correct one !!!')
+            return
+
     filepath = os.path.join(base, save_path, 'output.csv')
     gt_output_path = checkSegFormat(base, gt_path, 'gt')
     pred_output_path = checkSegFormat(base, pred_path, 'pred')
@@ -225,9 +264,9 @@ def main():
 
         num_class = np.unique(data_ref.ravel()).shape[0]
 
-        dsc = dice_coefficient_and_hausdorff_distance(
-            filename, data_ref, data_pred, num_class, pred_spacing)
-        DSC = pd.concat([DSC, dsc])
+        ds = dice_coefficient_and_hausdorff_distance(
+            filename, data_ref, data_pred, num_class, pred_spacing,  probability_map, dsc, ahd, whd)
+        DSC = pd.concat([DSC, ds])
 
     DSC.to_csv(filepath)
 

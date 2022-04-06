@@ -54,20 +54,20 @@ def distanceVertex2Path(mesh, skeleton, probability_map):
         print('mesh and vertices must be in 3D space!')
         return np.inf
 
-    d_min = np.matrix(np.ones((numV, 1)) * np.inf)
-    min_idx = np.matrix(np.zeros((numV, 1)))
+    d_min = np.ones(numV, dtype=np.float64) * np.inf
     pm = []
     # first check: find closest distance from vertex to vertex
     for i in range(numV):
+        min_idx = -1
         for j in range(numT):
             v1 = points[i, :]
             v2 = vertex[j, :]
             d = distance3DV2V(v1, v2)
             if d < d_min[i]:
                 d_min[i] = d
-                min_idx[i] = j
+                min_idx = j
 
-        pm.append(probability_map[min_idx[i]])
+        pm.append(probability_map[min_idx])
 
     print("check is finished !!!")
     return pm

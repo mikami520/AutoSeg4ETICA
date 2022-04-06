@@ -1,17 +1,17 @@
 # Automated Segmentation and Registration for Eustachian Tube Disfunction
 Aiming to develop state-of-art deep learning model for semantic segmentation of Eustachian tube CT scans with the use of supervised model - nnUNet - and unsupervised models - VoxelMorph and DeepReg.
 
-## Step 0: Fork this GitHub repository 
+## Step 0: Fork This GitHub Repository 
 ```
 git clone https://github.com/mikami520/CIS2-EustachianTube.git
 ```
 
-## Step 1: Set up two environments using .yml files in environments/ (virtual environment is recommended)
+## Step 1: Set Up Two Environments Using .yml Files in Environments/ (virtual environment is recommended)
 To Do:
 
 
-## Step 2: Preprocess datasets
-### Step 2.1: Register data to template
+## Step 2: Preprocess Datasets
+### Step 2.1: Register Data to Template
 Activate scripting environment
 ```
 cd <path to repo>/preprocessing
@@ -32,7 +32,7 @@ Final output of registered images and segmentations will be saved in
 ```
 imagesRS/ && labelsRS/
 ```
-### Step 2.2: Create datasplit for training/testing. Validation will be chosen automatically by nnUNet (filename format should be taskname_xxx.nii.gz)
+### Step 2.2: Create Datasplit for Training/Testing. Validation will be chosen automatically by nnUNet (filename format should be taskname_xxx.nii.gz)
 ```
 python3 split_data.py -bp <full path of base dir> -ip <relative path to nifti images dir (imagesRS)> -sp <relative path to nifti segmentations dir (labelsRS)> -sl <a list of label name and corresponding label value> -ti <task id for nnUNet preprocessing> -tn <name of task>
 ```
@@ -41,7 +41,7 @@ For example
 python3 split_data.py -bp /Users/mikamixiao/Desktop -ip imagesRS -sp labelsRS -sl 1 L-MS 2 R-MS -ti 001 -tn Sinus
 ```
 
-## Step 3: Setup bashrc
+## Step 3: Setup Bashrc
 
 Edit your `~/.bashrc` file with `gedit ~/.bashrc` or `nano ~/.bashrc`. At the end of the file, add the following lines:
 
@@ -59,7 +59,7 @@ source ~/.bashrc
 
 This will deactivate your current conda environment.
 
-## Step 4: Verify and preprocess data
+## Step 4: Verify and Preprocess Data
 Activate nnUNet environment
 ```
 source <virtual environment folder name>/bin/activate
@@ -80,7 +80,7 @@ nnUNet_train 3d_fullres nnUNetTrainerV2 Task<task_num>_TemporalBone Y --npz
 
 `--npz` makes the models save the softmax outputs (uncompressed, large files) during the final validation. It should only be used if you are training multiple configurations, which requires `nnUNet_find_best_configuration` to find the best model. We omit this by default.
 
-## Step 6: Run inference
+## Step 6: Run Inference
 
 `nnUNet_find_best_configuration` will print a string to the terminal with the inference commands you need to use.
 The easiest way to run inference is to simply use these commands.
@@ -112,7 +112,7 @@ Note that per default, inference will be done with all available folds. We very 
 Thus, all 5 folds must have been trained prior to running inference. The list of available folds nnU-Net found will be
 printed at the start of the inference.
 
-## Step 7: Evaluate inference
+## Step 7: Evaluate Inference
 To compute the dice score and average hausdorff distance:
 ```
 cd <path to repo>/metrics

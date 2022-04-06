@@ -113,7 +113,7 @@ Thus, all 5 folds must have been trained prior to running inference. The list of
 printed at the start of the inference.
 
 ## Step 7: Evaluate Inference
-To compute the dice score and average hausdorff distance:
+### To compute the dice score, average hausdorff distance and weighted hausdorff distance:
 ```
 cd <path to repo>/metrics
 ```
@@ -121,13 +121,22 @@ Run the metrics.py to output a CSV file that contain the dice score and hausdorf
 ```
 python3 metrics.py -bp <full path of base dir> -gp <relative path of ground truth dir> -pp <relative path of predicted segmentations dir> -sp <save dir> -vt <Validation type: 'dsc', 'ahd', 'whd'>
 ```
-User can choose any combinations of evaluation types among these three choices. 
+Users can choose any combinations of evaluation types among these three choices. 
 ```
 dsc: Dice Score
 ahd: Average Hausdorff Distance
 whd: Weighted Hausdorff Distance
 ``` 
-If choosing ```whd```, you can import your customized probability map by 
+If choosing ```whd``` and you do not have a probability map, you can use ```get_probability_map.py```to obtain one. Here is the way to use:
+```
+python3 get_probability_map.py -bp <full path of base dir> -pp <relative path of predicted segmentations dir> -rr <ratio to split skeleton> -ps <probability sequences>
+```
+Currently, we split the skeleton alongside the x axis and from ear end to nasal. Please make sure the probability sequences are matched to the splitted regions. The output probability map which is a text file will be stored in ```output/```under the ```base directory```. Once obtaining the probability map, you can import your customized probability map by adding following command when using ```metrics.py```:
 ```
 -pm <relative path of probability map>
 ```
+### To draw the heat map to see the failing part of prediction:
+```
+python3 distanceVertex2Mesh.py -bp <full path of base dir> -gp <relative path of ground truth dir> -pp <relative path of predicted segmentations dir>
+```
+Once you get the closest distance (save in ```output/``` under ```base directory```) from prediction to ground truth, you can easily draw the heat map and use the color bar to show the change of differences (```ParaView``` is recommended)

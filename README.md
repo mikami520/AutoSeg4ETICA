@@ -119,5 +119,15 @@ cd <path to repo>/metrics
 ```
 Run the metrics.py to output a CSV file that contain the dice score and hausdorff distance for each segmentation:
 ```
-python3 metrics.py -bp <full path of base dir> -gp <relative path of ground truth dir> -pp <relative path of predicted segmentations dir> -sp <save dir>
+python3 metrics.py -bp <full path of base dir> -gp <relative path of ground truth dir> -pp <relative path of predicted segmentations dir> -sp <save dir> -vt <Validation type: 'dsc', 'ahd', 'whd'>
+```
+User can choose any combinations of evaluation types among these three choices. 
+```
+dsc: Dice Score
+ahd: Average Hausdorff Distance
+whd: Weighted Hausdorff Distance
+``` 
+If choosing ```whd```, you can import your customized probability map by 
+```
+-pm <relative path of probability map>
 ```

@@ -9,13 +9,14 @@ import surface_distance
 import nrrd
 import shutil
 import distanceVertex2Mesh
+import textwrap
 
 
 def parse_command_line():
     print('---'*10)
     print('Parsing Command Line Arguments')
     parser = argparse.ArgumentParser(
-        description='Inference evaluation pipeline for image registration-segmentation')
+        description='Inference evaluation pipeline for image registration-segmentation', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-bp', metavar='base path', type=str,
                         help="Absolute path of the base directory")
     parser.add_argument('-gp', metavar='ground truth path', type=str,
@@ -25,13 +26,15 @@ def parse_command_line():
     parser.add_argument('-sp', metavar='save path', type=str,
                         help="Relative path of CSV file directory to save")
     parser.add_argument('-vt', metavar='validation type', type=str, nargs='+',
-                        help='''Validation type
-                        dsc: Dice Score
-                        ahd: Average Hausdorff Distance,
-                        whd: Weighted Hausdorff Distance
-                        ''')
+                        help=textwrap.dedent('''Validation type:
+                dsc: Dice Score
+                ahd: Average Hausdorff Distance
+                whd: Weighted Hausdorff Distance
+                        '''))
     parser.add_argument('-pm', metavar='probability map path', type=str,
                         help="Relative path of text file directory of probability map")
+    parser.add_argument('-fn', metavar='file name', type=str,
+                        help="name of output file")
     argv = parser.parse_args()
     return argv
 
@@ -57,8 +60,9 @@ def dice_coefficient_and_hausdorff_distance(filename, img_np_gt, img_np_pred, nu
             df1['Average Hausdorff Distance'] = avd
 
         if whd:
-            wgd = weighted_hausdorff_distance(gt, pred, probability_map)
-            df1['Weighted Hausdorff Distance'] = wgd
+            #wgd = weighted_hausdorff_distance(gt, pred, probability_map)
+            #df1['Weighted Hausdorff Distance'] = wgd
+            pass
 
         df = pd.concat([df, df1])
     return df
@@ -81,9 +85,6 @@ def average_hausdorff_distance(img_np_gt, img_np_pred, spacing):
         img_np_gt, img_np_pred, spacing)
     gp, pg = surface_distance.compute_average_surface_distance(surf_distance)
     return (gp + pg) / 2
-
-
-def weighted_hausdorff_distance(img_np_gt, img_np_pred, probability_map):
 
 
 def checkSegFormat(base, segmentation, type):
@@ -217,7 +218,11 @@ def main():
     save_path = args.sp
     validation_type = args.vt
     probability_map_path = args.pm
-    probability_map = np.loadtxt(os.path.join(base, probability_map_path))
+    filename = args.fn
+    if probability_map_path is not None:
+        probability_map = np.loadtxt(os.path.join(base, probability_map_path))
+    else:
+        probability_map = None
     dsc = False
     ahd = False
     whd = False
@@ -232,7 +237,7 @@ def main():
             print('wrong validation type, please choose correct one !!!')
             return
 
-    filepath = os.path.join(base, save_path, 'output.csv')
+    filepath = os.path.join(base, save_path, 'output_' + filename + '.csv')
     gt_output_path = checkSegFormat(base, gt_path, 'gt')
     pred_output_path = checkSegFormat(base, pred_path, 'pred')
 
@@ -265,7 +270,7 @@ def main():
         num_class = np.unique(data_ref.ravel()).shape[0]
 
         ds = dice_coefficient_and_hausdorff_distance(
-            filename, data_ref, data_pred, num_class, pred_spacing,  probability_map, dsc, ahd, whd)
+            filename, data_ref, data_pred, num_class, pred_spacing, probability_map, dsc, ahd, whd)
         DSC = pd.concat([DSC, ds])
 
     DSC.to_csv(filepath)

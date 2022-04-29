@@ -18,15 +18,15 @@ cd <path to repo>/preprocessing
 ```
 Register data to template (can be used for multiple segmentations propagation)
 ```
-python3 registration.py <full path of base dir> <relative path to nifti images dir> <relative path to segmentations dir> 
+python3 registration.py -bp <full path of base dir> -ip <relative path to nifti images dir> -sp <relative path to segmentations dir> 
 ```
 If you want to make sure correspondence of the name and value of segmentations, you can add the following commands after above command
 ```
-LabelName1 LabelValue1 LabelName2 LabelValue2 LabelName3 LabelValue3 ...
+-sl LabelValue1 LabelName1 LabelValue2 LabelName2 LabelValue3 LabelName3 ...
 ```
 For example, if I have two labels for maxillary sinus named L-MS and R-MS
 ```
-python3 registration.py /Users/mikamixiao/Desktop images labels L-MS 1 R-MS 2
+python3 registration.py -bp /Users/mikamixiao/Desktop -ip images -sp labels -sl 1 L-MS 2 R-MS
 ```
 Final output of registered images and segmentations will be saved in 
 ```

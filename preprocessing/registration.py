@@ -6,6 +6,24 @@ import glob
 import sys
 import slicerio
 import shutil
+import argparse
+
+
+def parse_command_line():
+    print('---'*10)
+    print('Parsing Command Line Arguments')
+    parser = argparse.ArgumentParser(
+        description='pipeline for dataset co-alignment')
+    parser.add_argument('-bp', metavar='base path', type=str,
+                        help="Absolute path of the base directory")
+    parser.add_argument('-ip', metavar='image path', type=str,
+                        help="Relative path of the image directory")
+    parser.add_argument('-sp', metavar='segmentation path', type=str,
+                        help="Relative path of the image directory")
+    parser.add_argument('-sl', metavar='segmentation information list', type=str, nargs='+',
+                        help='a list of label name and corresponding value')
+    argv = parser.parse_args()
+    return argv
 
 
 def split_and_registration(template, target, base, images_path, seg_path, fomat, checked=False):
@@ -171,7 +189,7 @@ def checkSegFormat(base, segmentation, paired_list, check=False):
 
     for file in os.listdir(path):
         name = file.split('.')[0]
-        if file.endswith('seg.nrrd'):
+        if file.endswith('seg.nrrd') or file.endswith('nrrd'):
             if check:
                 output_path = checkCorrespondence(
                     segmentation, base, paired_list, file)
@@ -224,14 +242,16 @@ def checkFormat(base, images_path):
     return ret
 
 
-def main(argv):
-    base = argv[0]
-    images_path = argv[1]
-    segmentation = argv[2]
+def main():
+    args = parse_command_line()
+    base = args.bp
+    images_path = args.ip
+    segmentation = args.sp
+    label_list = args.sl
     images_output = os.path.join(base, 'imagesRS')
     labels_output = os.path.join(base, 'labelsRS')
     fomat = checkFormat(base, images_path)
-    if len(argv) > 3:
+    if label_list is not None:
         matched_output = os.path.join(base, 'MatchedSegs')
         try:
             os.mkdir(matched_output)
@@ -249,16 +269,16 @@ def main(argv):
         print(f"{labels_output} already exists")
 
     paired_list = []
-    if len(argv) > 3:
-        for i in range(0, len(argv[3:]), 2):
-            if argv[3+i].isdigit():
+    if label_list is not None:
+        for i in range(0, len(label_list), 2):
+            if not label_list[i].isdigit():
                 print(
                     "Wrong order of input argument for pairwising label value and its name !!!")
                 return
             else:
-                key = argv[3+i]
-                if argv[3+i+1].isdigit():
-                    value = int(argv[3+i+1])
+                value = label_list[i]
+                if not label_list[i+1].isdigit():
+                    key = label_list[i+1]
                     ele = tuple((key, value))
                     paired_list.append(ele)
                 else:
@@ -305,4 +325,4 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    main()

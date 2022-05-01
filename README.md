@@ -6,9 +6,15 @@ Aiming to develop state-of-art deep learning model for semantic segmentation of 
 git clone https://github.com/mikami520/CIS2-EustachianTube.git
 ```
 
-## Step 1: Set Up Two Environments Using .yml Files in Environments/ (virtual environment is recommended)
-To Do:
-
+## Step 1: Set Up Two Environments Using requirements.txt Files (virtual environment is recommended)
+For Python 2
+```
+pip install -r requirements.txt
+```
+For Python 3
+```
+pip3 install -r requirements.txt
+```
 
 ## Step 2: Preprocess Datasets
 ### Step 2.1: Register Data to Template

@@ -110,12 +110,12 @@ def main():
 
     random.shuffle(image_list)
     for i in range(num_images):
+        filename1 = os.path.basename(image_list[i]).split(".")[0]
+        number = filename1[-3:]
         if (i < num_train):
             # put this image to the training folder
             shutil.copy(image_list[i], train_image_dir)
             filename = os.path.basename(image_list[i])
-            filename1 = os.path.basename(image_list[i]).split(".")[0]
-            number = filename1[-3:]
             rename(train_image_dir, filename, Name + "_" + number + "_0000.nii.gz")
 
             for label_dir in label_list:
@@ -129,7 +129,7 @@ def main():
             filename = os.path.basename(image_list[i])
             filename1 = os.path.basename(image_list[i]).split(".")[0]
             number = filename1[-3:]
-            rename(test_dir, filename, Name + "_" + number + "_0000.nii.gz")
+            rename(test_dir, filename, Name +  "_" + number + "_0000.nii.gz")
 
     # create json file
     json_dict = OrderedDict()

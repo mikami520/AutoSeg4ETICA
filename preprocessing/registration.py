@@ -50,7 +50,7 @@ def split_and_registration(template, target, base, images_path, seg_path, fomat,
     print('---'*10)
     print('Performing the template and target image registration')
     transform_forward = ants.registration(fixed=template_image, moving=target_image,
-                                          type_of_transform="Similarity", verbose=False)
+                                          type_of_transform="Affine", verbose=False)
     print('---'*10)
     print('Applying the transfmation for label propagation and image registration')
     predicted_targets_image = ants.apply_transforms(
@@ -298,12 +298,17 @@ def main():
                 target = os.path.basename(j).split('.')[0]
                 split_and_registration(
                     template, target, base, images_path, seg_output_path, fomat, checked=True)
-
+        
         image = ants.image_read(os.path.join(
             base, images_path, template + '.' + fomat))
         image.to_file(os.path.join(base, images_output, template + '.nii.gz'))
         shutil.copy(os.path.join(base, seg_output_path,
                     template + '.nii.gz'), labels_output)
+        fomat = 'nii.gz'
+        images_path = os.path.join(base, 'imagesRS/')
+        split_and_registration(
+                    target, template, base, images_path, seg_output_path, fomat, checked=True)
+
     else:
         seg_output_path = checkSegFormat(
             base, segmentation, paired_list, check=False)
@@ -316,12 +321,16 @@ def main():
                 target = os.path.basename(i).split('.')[0]
                 split_and_registration(
                     template, target, base, images_path, seg_output_path, fomat, checked=False)
-
+        
         image = ants.image_read(os.path.join(
             base, images_path, template + '.' + fomat))
         image.to_file(os.path.join(base, images_output, template + '.nii.gz'))
         shutil.copy(os.path.join(base, seg_output_path,
                     template + '.nii.gz'), labels_output)
+        images_path = os.path.join(base, 'imagesRS/')
+        fomat = 'nii.gz'
+        split_and_registration(
+                    target, template, base, images_path, seg_output_path, fomat, checked=False)
 
 
 if __name__ == '__main__':

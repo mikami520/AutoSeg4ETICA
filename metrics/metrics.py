@@ -77,6 +77,7 @@ def make_one_hot(img_np, num_classes):
         a = (img_np == i)
         img_one_hot_dice[i, :, :, :] = a
         img_one_hot_hd[i, :, :, :] = a
+
     return img_one_hot_dice, img_one_hot_hd
 
 
@@ -259,16 +260,13 @@ def main():
                 "Spacing of prediction and ground_truth is not matched, please check again !!!")
             return
 
-        ref = nib.load(gt_seg)
-        header_ref = dict(ref.header)
-        data_ref = ref.get_fdata()
+        ref = pred_img
+        data_ref = ref.numpy()
 
-        pred = nib.load(i)
-        header_pred = dict(pred.header)
-        data_pred = pred.get_fdata()
+        pred = gt_img
+        data_pred = pred.numpy()
 
         num_class = np.unique(data_ref.ravel()).shape[0]
-
         ds = dice_coefficient_and_hausdorff_distance(
             filename, data_ref, data_pred, num_class, pred_spacing, probability_map, dsc, ahd, whd)
         DSC = pd.concat([DSC, ds])

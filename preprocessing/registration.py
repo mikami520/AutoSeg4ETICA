@@ -50,7 +50,7 @@ def split_and_registration(template, target, base, images_path, seg_path, fomat,
     print('---'*10)
     print('Performing the template and target image registration')
     transform_forward = ants.registration(fixed=template_image, moving=target_image,
-                                          type_of_transform="Affine", verbose=False)
+                                          type_of_transform="Translation", verbose=False)
     print('---'*10)
     print('Applying the transfmation for label propagation and image registration')
     predicted_targets_image = ants.apply_transforms(
@@ -225,6 +225,17 @@ def nrrd2nifti(img, header, filename, segmentations=True):
         print('-- Saving NII Volume')
         img.to_file(filename)
 
+def find_template(base, image_path, fomat):
+    maxD = -np.inf
+    for i in glob.glob(os.path.join(base, image_path) + '/*' + fomat):
+        id = os.path.basename(i).split('.')[0]
+        img = ants.image_read(i)
+        thirdD = img.shape[2]
+        if thirdD > maxD:
+            template = id
+            maxD = thirdD
+    
+    return template
 
 def checkFormat(base, images_path):
     path = os.path.join(base, images_path)
@@ -251,6 +262,7 @@ def main():
     images_output = os.path.join(base, 'imagesRS')
     labels_output = os.path.join(base, 'labelsRS')
     fomat = checkFormat(base, images_path)
+    template = find_template(base, images_path, fomat)
     if label_list is not None:
         matched_output = os.path.join(base, 'MatchedSegs')
         try:
@@ -289,13 +301,12 @@ def main():
             # print(new_segmentation)
         seg_output_path = checkSegFormat(
             base, segmentation, paired_list, check=True)
-        k = 0
         for j in sorted(glob.glob(os.path.join(base, images_path) + '/*' + fomat)):
-            k += 1
-            if k == 1:
-                template = os.path.basename(j).split('.')[0]
+            id = os.path.basename(j).split('.')[0]
+            if id == template:
+                pass
             else:
-                target = os.path.basename(j).split('.')[0]
+                target = id
                 split_and_registration(
                     template, target, base, images_path, seg_output_path, fomat, checked=True)
         
@@ -312,13 +323,13 @@ def main():
     else:
         seg_output_path = checkSegFormat(
             base, segmentation, paired_list, check=False)
-        k = 0
+
         for i in sorted(glob.glob(os.path.join(base, images_path) + '/*' + fomat)):
-            k += 1
-            if k == 1:
-                template = os.path.basename(i).split('.')[0]
+            id = os.path.basename(i).split('.')[0]
+            if id == template:
+                pass
             else:
-                target = os.path.basename(i).split('.')[0]
+                target = id
                 split_and_registration(
                     template, target, base, images_path, seg_output_path, fomat, checked=False)
         

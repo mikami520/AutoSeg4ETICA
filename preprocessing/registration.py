@@ -3,7 +3,6 @@ import ants
 import nrrd
 import numpy as np
 import glob
-import sys
 import slicerio
 import shutil
 import argparse
@@ -26,22 +25,13 @@ def parse_command_line():
     return argv
 
 
-def split_and_registration(template, target, base, images_path, seg_path, fomat, checked=False):
+def split_and_registration(template, target, base, images_path, seg_path, fomat, checked=False, has_label=False):
     print('---'*10)
     print('Creating file paths')
     # Define the path for template, target, and segmentations (from template)
     fixed_path = os.path.join(base, images_path, template + '.' + fomat)
     moving_path = os.path.join(base, images_path, target + '.' + fomat)
-    segmentation_path = os.path.join(
-        base, seg_path, target + '.nii.gz')
-
-    segmentation_output = os.path.join(
-        base, 'labelsRS/', target + '.nii.gz')
     images_output = os.path.join(base, 'imagesRS/', target + '.nii.gz')
-    print('---'*10)
-    print('Reading in the segmentation')
-    # Split segmentations into individual components
-    segment_target = ants.image_read(segmentation_path)
     print('---'*10)
     print('Reading in the template and target image')
     # Read the template and target image
@@ -50,15 +40,25 @@ def split_and_registration(template, target, base, images_path, seg_path, fomat,
     print('---'*10)
     print('Performing the template and target image registration')
     transform_forward = ants.registration(fixed=template_image, moving=target_image,
-                                          type_of_transform="Translation", verbose=False)
-    print('---'*10)
-    print('Applying the transfmation for label propagation and image registration')
-    predicted_targets_image = ants.apply_transforms(
-        fixed=template_image,
-        moving=segment_target,
-        transformlist=transform_forward["fwdtransforms"],
-        interpolator="genericLabel",
-        verbose=False)
+                                          type_of_transform="Affine", verbose=False)
+    if has_label:
+        segmentation_path = os.path.join(
+            base, seg_path, target + '.nii.gz')
+        segmentation_output = os.path.join(
+            base, 'labelsRS/', target + '.nii.gz')
+        print('---'*10)
+        print('Reading in the segmentation')
+        # Split segmentations into individual components
+        segment_target = ants.image_read(segmentation_path)
+        print('---'*10)
+        print('Applying the transformation for label propagation and image registration')
+        predicted_targets_image = ants.apply_transforms(
+            fixed=template_image,
+            moving=segment_target,
+            transformlist=transform_forward["fwdtransforms"],
+            interpolator="genericLabel",
+            verbose=False)
+        predicted_targets_image.to_file(segmentation_output)
 
     reg_img = ants.apply_transforms(
         fixed=template_image,
@@ -68,8 +68,6 @@ def split_and_registration(template, target, base, images_path, seg_path, fomat,
         verbose=False)
     print('---'*10)
     print("writing out transformed template segmentation")
-
-    predicted_targets_image.to_file(segmentation_output)
     reg_img.to_file(images_output)
     print('Label Propagation & Image Registration complete')
 
@@ -164,6 +162,7 @@ def get_num_segments(header, indices=None):
 
 
 def checkCorrespondence(segmentation, base, paired_list, filename):
+    print(filename)
     assert type(paired_list) == list
     data, tempSeg = nrrd.read(os.path.join(base, segmentation, filename))
     seg_info = slicerio.read_segmentation_info(
@@ -225,17 +224,20 @@ def nrrd2nifti(img, header, filename, segmentations=True):
         print('-- Saving NII Volume')
         img.to_file(filename)
 
+
 def find_template(base, image_path, fomat):
-    maxD = -np.inf
-    for i in glob.glob(os.path.join(base, image_path) + '/*' + fomat):
-        id = os.path.basename(i).split('.')[0]
-        img = ants.image_read(i)
-        thirdD = img.shape[2]
-        if thirdD > maxD:
-            template = id
-            maxD = thirdD
-    
+    scans = sorted(glob.glob(os.path.join(base, image_path) + '/*' + fomat))
+    template = os.path.basename(scans[0]).split('.')[0]
     return template
+
+
+def path_to_id(path, fomat):
+    ids = []
+    for i in glob.glob(path + '/*' + fomat):
+        id = os.path.basename(i).split('.')[0]
+        ids.append(id)
+    return ids
+
 
 def checkFormat(base, images_path):
     path = os.path.join(base, images_path)
@@ -249,7 +251,9 @@ def checkFormat(base, images_path):
         elif file.endswith('.nrrd'):
             ret = 'nrrd'
             break
-
+        elif file.endswith('.seg.nrrd'):
+            ret = 'seg.nrrd'
+            break
     return ret
 
 
@@ -262,7 +266,9 @@ def main():
     images_output = os.path.join(base, 'imagesRS')
     labels_output = os.path.join(base, 'labelsRS')
     fomat = checkFormat(base, images_path)
+    fomat_seg = checkFormat(base, segmentation)
     template = find_template(base, images_path, fomat)
+    label_lists = path_to_id(os.path.join(base, segmentation), fomat_seg)
     if label_list is not None:
         matched_output = os.path.join(base, 'MatchedSegs')
         try:
@@ -285,7 +291,7 @@ def main():
         for i in range(0, len(label_list), 2):
             if not label_list[i].isdigit():
                 print(
-                    "Wrong order of input argument for pairwising label value and its name !!!")
+                    "Wrong order of input argument for pair-wising label value and its name !!!")
                 return
             else:
                 value = label_list[i]
@@ -295,7 +301,7 @@ def main():
                     paired_list.append(ele)
                 else:
                     print(
-                        "Wrong input argument for pairwising label value and its name !!!")
+                        "Wrong input argument for pair-wising label value and its name !!!")
                     return
 
             # print(new_segmentation)
@@ -307,18 +313,24 @@ def main():
                 pass
             else:
                 target = id
-                split_and_registration(
-                    template, target, base, images_path, seg_output_path, fomat, checked=True)
-        
+                if id in label_lists:
+                    split_and_registration(
+                        template, target, base, images_path, seg_output_path, fomat, checked=True, has_label=True)
+                else:
+                    split_and_registration(
+                        template, target, base, images_path, seg_output_path, fomat, checked=True, has_label=False)
+
         image = ants.image_read(os.path.join(
             base, images_path, template + '.' + fomat))
         image.to_file(os.path.join(base, images_output, template + '.nii.gz'))
-        shutil.copy(os.path.join(base, seg_output_path,
-                    template + '.nii.gz'), labels_output)
         fomat = 'nii.gz'
         images_path = os.path.join(base, 'imagesRS/')
-        split_and_registration(
-                    target, template, base, images_path, seg_output_path, fomat, checked=True)
+        if template in label_lists:
+            split_and_registration(
+                target, template, base, images_path, seg_output_path, fomat, checked=True, has_label=True)
+        else:
+            split_and_registration(
+                target, template, base, images_path, seg_output_path, fomat, checked=True, has_label=False)
 
     else:
         seg_output_path = checkSegFormat(
@@ -330,18 +342,25 @@ def main():
                 pass
             else:
                 target = id
-                split_and_registration(
-                    template, target, base, images_path, seg_output_path, fomat, checked=False)
-        
+                if id in label_lists:
+                    split_and_registration(
+                        template, target, base, images_path, seg_output_path, fomat, checked=False, has_label=True)
+                else:
+                    split_and_registration(
+                        template, target, base, images_path, seg_output_path, fomat, checked=False, has_label=False)
+
         image = ants.image_read(os.path.join(
             base, images_path, template + '.' + fomat))
         image.to_file(os.path.join(base, images_output, template + '.nii.gz'))
-        shutil.copy(os.path.join(base, seg_output_path,
-                    template + '.nii.gz'), labels_output)
+
         images_path = os.path.join(base, 'imagesRS/')
         fomat = 'nii.gz'
-        split_and_registration(
-                    target, template, base, images_path, seg_output_path, fomat, checked=False)
+        if template in label_lists:
+            split_and_registration(
+                target, template, base, images_path, seg_output_path, fomat, checked=True, has_label=True)
+        else:
+            split_and_registration(
+                target, template, base, images_path, seg_output_path, fomat, checked=True, has_label=False)
 
 
 if __name__ == '__main__':

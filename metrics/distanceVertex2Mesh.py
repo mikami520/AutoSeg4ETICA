@@ -141,11 +141,12 @@ def main():
         print(f'{output_dir} already exists')
 
     for i in glob.glob(os.path.join(base, gt_path) + '/*.vtk'):
-        side = os.path.basename(i).split('.')[0].split('_')[0]
-        scan_name = os.path.basename(i).split('.')[0].split('_')[1]
-        scan_id = os.path.basename(i).split('.')[0].split('_')[2]
+        filename = os.path.basename(i).split('.')[0]
+        #side = os.path.basename(i).split('.')[0].split('_')[0]
+        #scan_name = os.path.basename(i).split('.')[0].split('_')[0]
+        #scan_id = os.path.basename(i).split('.')[0].split('_')[1]
         output_sub_dir = os.path.join(
-            base, 'output', scan_name + '_' + scan_id)
+            base, 'output', filename)
         try:
             os.mkdir(output_sub_dir)
         except:
@@ -153,13 +154,13 @@ def main():
 
         gt_mesh = pv.read(i)
         pred_mesh = pv.read(os.path.join(
-            base, pred_path, side + '_' + scan_name + '_' + scan_id + '.vtk'))
+            base, pred_path, filename + '.vtk'))
         pred_vertices = np.array(pred_mesh.points)
         d = distanceVertex2Mesh(gt_mesh, pred_vertices)
         if(d.any() == np.Inf):
             print('something with mesh is wrong !!!')
             return
-        np.savetxt(os.path.join(base, output_sub_dir, scan_id + '.txt'), d)
+        np.savetxt(os.path.join(base, output_sub_dir, filename + '.txt'), d)
 
 
 if __name__ == '__main__':

@@ -35,6 +35,14 @@ def parse_command_line():
                         help="Relative path of text file directory of probability map")
     parser.add_argument('-fn', metavar='file name', type=str,
                         help="name of output file")
+    parser.add_argument('-reg', action='store_true',
+                        help="check if the input files are registration predictions")
+    parser.add_argument('-tp', metavar='type of segmentation', type=str,
+                        help=textwrap.dedent('''Segmentation type:
+                ET: Eustachian Tube
+                NC: Nasal Cavity
+                HT: Head Tumor
+                        '''))
     argv = parser.parse_args()
     return argv
 
@@ -45,7 +53,7 @@ def dice_coefficient_and_hausdorff_distance(filename, img_np_gt, img_np_pred, nu
     data_pred, bool_pred = make_one_hot(img_np_pred, num_classes)
     for i in range(1, num_classes):
         df1 = pd.DataFrame([[filename, i]], columns=[
-                           'File ID', 'Label Value'])
+            'File ID', 'Label Value'])
         if dsc:
             volume_sum = data_gt[i].sum() + data_pred[i].sum()
             if volume_sum == 0:
@@ -60,8 +68,8 @@ def dice_coefficient_and_hausdorff_distance(filename, img_np_gt, img_np_pred, nu
             df1['Average Hausdorff Distance'] = avd
 
         if whd:
-            #wgd = weighted_hausdorff_distance(gt, pred, probability_map)
-            #df1['Weighted Hausdorff Distance'] = wgd
+            # wgd = weighted_hausdorff_distance(gt, pred, probability_map)
+            # df1['Weighted Hausdorff Distance'] = wgd
             pass
 
         df = pd.concat([df, df1])
@@ -220,6 +228,8 @@ def main():
     validation_type = args.vt
     probability_map_path = args.pm
     filename = args.fn
+    reg = args.reg
+    seg_type = args.tp
     if probability_map_path is not None:
         probability_map = np.loadtxt(os.path.join(base, probability_map_path))
     else:
@@ -248,11 +258,18 @@ def main():
         print(f'{filepath} already exists')
 
     DSC = pd.DataFrame()
-    for i in glob.glob(os.path.join(base, pred_output_path) + '/*nii.gz'):
+    for i in glob.glob(os.path.join(base, pred_output_path) + '/*seg.nii.gz'):
         pred_img = ants.image_read(i)
         pred_spacing = list(pred_img.spacing)
-        filename = os.path.basename(i).split('.')[0]
-        gt_seg = os.path.join(base, gt_output_path, filename + '.nii.gz')
+        if reg and seg_type == 'ET':
+            file_name = os.path.basename(i).split('.')[0].split('_')[4] + '_' + os.path.basename(
+                i).split('.')[0].split('_')[5] + '_' + os.path.basename(i).split('.')[0].split('_')[6]
+            file_name1 = os.path.basename(i).split('.')[0]
+        elif reg and seg_type == 'NC':
+            file_name = os.path.basename(i).split(
+                '.')[0].split('_')[3] + '_' + os.path.basename(i).split('.')[0].split('_')[4]
+            file_name1 = os.path.basename(i).split('.')[0]
+        gt_seg = os.path.join(base, gt_output_path, file_name + '.nii.gz')
         gt_img = ants.image_read(gt_seg)
         gt_spacing = list(gt_img.spacing)
         if gt_spacing != pred_spacing:
@@ -268,7 +285,7 @@ def main():
 
         num_class = np.unique(data_ref.ravel()).shape[0]
         ds = dice_coefficient_and_hausdorff_distance(
-            filename, data_ref, data_pred, num_class, pred_spacing, probability_map, dsc, ahd, whd)
+            file_name1, data_ref, data_pred, num_class, pred_spacing, probability_map, dsc, ahd, whd)
         DSC = pd.concat([DSC, ds])
 
     DSC.to_csv(filepath)

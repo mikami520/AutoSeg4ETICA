@@ -40,7 +40,7 @@ def split_and_registration(template, target, base, images_path, seg_path, fomat,
     print('---'*10)
     print('Performing the template and target image registration')
     transform_forward = ants.registration(fixed=template_image, moving=target_image,
-                                          type_of_transform="Affine", verbose=False)
+                                          type_of_transform="Similarity", verbose=False)
     if has_label:
         segmentation_path = os.path.join(
             base, seg_path, target + '.nii.gz')
@@ -231,6 +231,19 @@ def find_template(base, image_path, fomat):
     return template
 
 
+def find_template_V2(base, image_path, fomat):
+    maxD = -np.inf
+    for i in glob.glob(os.path.join(base, image_path) + '/*' + fomat):
+        id = os.path.basename(i).split('.')[0]
+        img = ants.image_read(i)
+        thirdD = img.shape[2]
+        if thirdD > maxD:
+            template = id
+            maxD = thirdD
+
+    return template
+
+
 def path_to_id(path, fomat):
     ids = []
     for i in glob.glob(path + '/*' + fomat):
@@ -267,7 +280,7 @@ def main():
     labels_output = os.path.join(base, 'labelsRS')
     fomat = checkFormat(base, images_path)
     fomat_seg = checkFormat(base, segmentation)
-    template = find_template(base, images_path, fomat)
+    template = find_template_V2(base, images_path, fomat)
     label_lists = path_to_id(os.path.join(base, segmentation), fomat_seg)
     if label_list is not None:
         matched_output = os.path.join(base, 'MatchedSegs')

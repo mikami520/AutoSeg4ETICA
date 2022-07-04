@@ -258,7 +258,7 @@ def main():
         print(f'{filepath} already exists')
 
     DSC = pd.DataFrame()
-    for i in glob.glob(os.path.join(base, pred_output_path) + '/*seg.nii.gz'):
+    for i in glob.glob(os.path.join(base, pred_output_path) + '/*nii.gz'):
         pred_img = ants.image_read(i)
         pred_spacing = list(pred_img.spacing)
         if reg and seg_type == 'ET':
@@ -269,9 +269,13 @@ def main():
             file_name = os.path.basename(i).split(
                 '.')[0].split('_')[3] + '_' + os.path.basename(i).split('.')[0].split('_')[4]
             file_name1 = os.path.basename(i).split('.')[0]
+        else:
+            file_name = os.path.basename(i).split('.')[0]
+            file_name1 = os.path.basename(i).split('.')[0]
         gt_seg = os.path.join(base, gt_output_path, file_name + '.nii.gz')
         gt_img = ants.image_read(gt_seg)
         gt_spacing = list(gt_img.spacing)
+
         if gt_spacing != pred_spacing:
             print(
                 "Spacing of prediction and ground_truth is not matched, please check again !!!")
@@ -283,7 +287,7 @@ def main():
         pred = gt_img
         data_pred = pred.numpy()
 
-        num_class = np.unique(data_ref.ravel()).shape[0]
+        num_class = np.unique(data_pred.ravel()).shape[0]
         ds = dice_coefficient_and_hausdorff_distance(
             file_name1, data_ref, data_pred, num_class, pred_spacing, probability_map, dsc, ahd, whd)
         DSC = pd.concat([DSC, ds])

@@ -43,11 +43,13 @@ def parse_command_line():
                 NC: Nasal Cavity
                 HT: Head Tumor
                         '''))
+    parser.add_argument('-sl', metavar='segmentation information list', type=str, nargs='+',
+                        help='a list of label name and corresponding value')
     argv = parser.parse_args()
     return argv
 
 
-def dice_coefficient_and_hausdorff_distance(filename, img_np_gt, img_np_pred, num_classes, spacing, probability_map, dsc, ahd, whd):
+def dice_coefficient_and_hausdorff_distance(filename, img_np_gt, img_np_pred, num_classes, spacing, probability_map, dsc, ahd, whd, average_DSC, average_HD):
     df = pd.DataFrame()
     data_gt, bool_gt = make_one_hot(img_np_gt, num_classes)
     data_pred, bool_pred = make_one_hot(img_np_pred, num_classes)
@@ -62,18 +64,18 @@ def dice_coefficient_and_hausdorff_distance(filename, img_np_gt, img_np_pred, nu
             volume_intersect = (data_gt[i] & data_pred[i]).sum()
             dice = 2*volume_intersect / volume_sum
             df1['Dice Score'] = dice
-
+            average_DSC[i-1] += dice
         if ahd:
             avd = average_hausdorff_distance(bool_gt[i], bool_pred[i], spacing)
             df1['Average Hausdorff Distance'] = avd
-
+            average_HD[i-1] += avd
         if whd:
             # wgd = weighted_hausdorff_distance(gt, pred, probability_map)
             # df1['Weighted Hausdorff Distance'] = wgd
             pass
 
         df = pd.concat([df, df1])
-    return df
+    return df, average_DSC, average_HD
 
 
 def make_one_hot(img_np, num_classes):
@@ -230,6 +232,7 @@ def main():
     filename = args.fn
     reg = args.reg
     seg_type = args.tp
+    label_list = args.sl
     if probability_map_path is not None:
         probability_map = np.loadtxt(os.path.join(base, probability_map_path))
     else:
@@ -258,7 +261,14 @@ def main():
         print(f'{filepath} already exists')
 
     DSC = pd.DataFrame()
+    file = glob.glob(os.path.join(base, pred_output_path) + '/*nii.gz')[0]
+    seg_file = ants.image_read(file)
+    num_class = np.unique(seg_file.numpy().ravel()).shape[0]
+    average_DSC = np.zeros((num_class-1,1))
+    average_HD = np.zeros((num_class-1,1))
+    k = 0
     for i in glob.glob(os.path.join(base, pred_output_path) + '/*nii.gz'):
+        k += 1
         pred_img = ants.image_read(i)
         pred_spacing = list(pred_img.spacing)
         if reg and seg_type == 'ET':
@@ -288,10 +298,19 @@ def main():
         data_pred = pred.numpy()
 
         num_class = np.unique(data_pred.ravel()).shape[0]
-        ds = dice_coefficient_and_hausdorff_distance(
-            file_name1, data_ref, data_pred, num_class, pred_spacing, probability_map, dsc, ahd, whd)
+        ds, aver_DSC, aver_HD = dice_coefficient_and_hausdorff_distance(
+            file_name1, data_ref, data_pred, num_class, pred_spacing, probability_map, dsc, ahd, whd, average_DSC, average_HD)
         DSC = pd.concat([DSC, ds])
+        average_DSC = aver_DSC
+        average_HD = aver_HD
 
+    avg_DSC = average_DSC / k
+    avg_HD = average_HD / k
+    print(len(avg_DSC))
+    with open(os.path.join(base, save_path, "metric.txt"), 'w') as f:
+        f.write("Label Value | Label Name | Average Dice Score | Average Mean HD\n")
+        for i in range(len(avg_DSC)):
+            f.write(str(i+1) + " | " + label_list[2*i+1] + " | " + str(avg_DSC[i]) + " | " + str(avg_HD[i]) + "\n")
     DSC.to_csv(filepath)
 
 

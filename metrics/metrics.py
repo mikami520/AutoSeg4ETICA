@@ -24,7 +24,7 @@ def parse_command_line():
     parser.add_argument('-pp', metavar='predicted path', type=str,
                         help="Relative path of predicted segmentation directory")
     parser.add_argument('-sp', metavar='save path', type=str,
-                        help="Relative path of CSV file directory to save")
+                        help="Relative path of CSV file directory to save, if not specify, default is base directory")
     parser.add_argument('-vt', metavar='validation type', type=str, nargs='+',
                         help=textwrap.dedent('''Validation type:
                 dsc: Dice Score
@@ -49,7 +49,7 @@ def parse_command_line():
     return argv
 
 
-def dice_coefficient_and_hausdorff_distance(filename, img_np_gt, img_np_pred, num_classes, spacing, probability_map, dsc, ahd, whd, average_DSC, average_HD):
+def dice_coefficient_and_hausdorff_distance(filename, img_np_pred, img_np_gt, num_classes, spacing, probability_map, dsc, ahd, whd, average_DSC, average_HD):
     df = pd.DataFrame()
     data_gt, bool_gt = make_one_hot(img_np_gt, num_classes)
     data_pred, bool_pred = make_one_hot(img_np_pred, num_classes)
@@ -57,18 +57,28 @@ def dice_coefficient_and_hausdorff_distance(filename, img_np_gt, img_np_pred, nu
         df1 = pd.DataFrame([[filename, i]], columns=[
             'File ID', 'Label Value'])
         if dsc:
-            volume_sum = data_gt[i].sum() + data_pred[i].sum()
-            if volume_sum == 0:
-                return np.NaN
+            if data_pred[i].any():
+                volume_sum = data_gt[i].sum() + data_pred[i].sum()
+                if volume_sum == 0:
+                    return np.NaN
 
-            volume_intersect = (data_gt[i] & data_pred[i]).sum()
-            dice = 2*volume_intersect / volume_sum
-            df1['Dice Score'] = dice
-            average_DSC[i-1] += dice
+                volume_intersect = (data_gt[i] & data_pred[i]).sum()
+                dice = 2*volume_intersect / volume_sum
+                df1['Dice Score'] = dice
+                average_DSC[i-1] += dice
+            else:
+                dice = 0.0
+                df1['Dice Score'] = dice
+                average_DSC[i-1] += dice
         if ahd:
-            avd = average_hausdorff_distance(bool_gt[i], bool_pred[i], spacing)
-            df1['Average Hausdorff Distance'] = avd
-            average_HD[i-1] += avd
+            if data_pred[i].any():
+                avd = average_hausdorff_distance(bool_gt[i], bool_pred[i], spacing)
+                df1['Average Hausdorff Distance'] = avd
+                average_HD[i-1] += avd
+            else:
+                avd = np.nan
+                df1['Average Hausdorff Distance'] = avd
+                average_HD[i-1] += avd
         if whd:
             # wgd = weighted_hausdorff_distance(gt, pred, probability_map)
             # df1['Weighted Hausdorff Distance'] = wgd
@@ -226,7 +236,10 @@ def main():
     base = args.bp
     gt_path = args.gp
     pred_path = args.pp
-    save_path = args.sp
+    if args.sp is None:
+        save_path = base
+    else:
+        save_path = args.sp
     validation_type = args.vt
     probability_map_path = args.pm
     filename = args.fn
@@ -261,11 +274,11 @@ def main():
         print(f'{filepath} already exists')
 
     DSC = pd.DataFrame()
-    file = glob.glob(os.path.join(base, pred_output_path) + '/*nii.gz')[0]
+    file = glob.glob(os.path.join(base, gt_output_path) + '/*nii.gz')[0]
     seg_file = ants.image_read(file)
     num_class = np.unique(seg_file.numpy().ravel()).shape[0]
-    average_DSC = np.zeros((num_class-1,1))
-    average_HD = np.zeros((num_class-1,1))
+    average_DSC = np.zeros((num_class-1))
+    average_HD = np.zeros((num_class-1))
     k = 0
     for i in glob.glob(os.path.join(base, pred_output_path) + '/*nii.gz'):
         k += 1
@@ -297,7 +310,7 @@ def main():
         pred = gt_img
         data_pred = pred.numpy()
 
-        num_class = np.unique(data_pred.ravel()).shape[0]
+        num_class = len(np.unique(data_pred))
         ds, aver_DSC, aver_HD = dice_coefficient_and_hausdorff_distance(
             file_name1, data_ref, data_pred, num_class, pred_spacing, probability_map, dsc, ahd, whd, average_DSC, average_HD)
         DSC = pd.concat([DSC, ds])
@@ -306,11 +319,11 @@ def main():
 
     avg_DSC = average_DSC / k
     avg_HD = average_HD / k
-    print(len(avg_DSC))
+    print(avg_DSC)
     with open(os.path.join(base, save_path, "metric.txt"), 'w') as f:
-        f.write("Label Value | Label Name | Average Dice Score | Average Mean HD\n")
+        f.write("Label Value  Label Name  Average Dice Score  Average Mean HD\n")
         for i in range(len(avg_DSC)):
-            f.write(str(i+1) + " | " + label_list[2*i+1] + " | " + str(avg_DSC[i]) + " | " + str(avg_HD[i]) + "\n")
+            f.write(f'{str(i+1):^12}{str(label_list[2*i+1]):^12}{str(avg_DSC[i]):^20}{str(avg_HD[i]):^18}\n')
     DSC.to_csv(filepath)
 
 

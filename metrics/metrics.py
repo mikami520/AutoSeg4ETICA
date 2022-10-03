@@ -265,9 +265,15 @@ def main():
             return
 
     filepath = os.path.join(base, save_path, 'output_' + filename + '.csv')
+    save_dir = os.path.join(base, save_path)
     gt_output_path = checkSegFormat(base, gt_path, 'gt')
     pred_output_path = checkSegFormat(base, pred_path, 'pred')
 
+    try:
+        os.mkdir(save_dir)
+    except:
+        print(f'{save_dir} already exists')
+    
     try:
         os.mknod(filepath)
     except:

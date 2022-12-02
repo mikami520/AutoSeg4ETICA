@@ -12,7 +12,7 @@ def parse_command_line():
     print('---'*10)
     print('Parsing Command Line Arguments')
     parser = argparse.ArgumentParser(
-        description='pipeline for dataset co-alignment')
+        description='pipeline for dataset nnUNet preprocessing')
     parser.add_argument('-bp', metavar='base path', type=str,
                         help="Absolute path of the base directory")
     parser.add_argument('-ip', metavar='image path', type=str,

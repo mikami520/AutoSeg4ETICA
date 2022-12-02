@@ -45,9 +45,16 @@ def parse_command_line():
                         '''))
     parser.add_argument('-sl', metavar='segmentation information list', type=str, nargs='+',
                         help='a list of label name and corresponding value')
+    parser.add_argument('-cp', metavar='current prefix of filenames', type=str,
+                        help='current prefix of filenames')
     argv = parser.parse_args()
     return argv
 
+
+def rename(prefix, filename):
+    name = filename.split('.')[0][-3:]
+    name = prefix + '_' + name
+    return name
 
 def dice_coefficient_and_hausdorff_distance(filename, img_np_pred, img_np_gt, num_classes, spacing, probability_map, dsc, ahd, whd, average_DSC, average_HD):
     df = pd.DataFrame()
@@ -108,7 +115,7 @@ def average_hausdorff_distance(img_np_gt, img_np_pred, spacing):
     return (gp + pg) / 2
 
 
-def checkSegFormat(base, segmentation, type):
+def checkSegFormat(base, segmentation, type, prefix):
     path = os.path.join(base, segmentation)
     if type == 'gt':
         save_dir = os.path.join(base, 'gt_reformat_labels')
@@ -120,7 +127,11 @@ def checkSegFormat(base, segmentation, type):
         print(f'{save_dir} already exists')
 
     for file in os.listdir(path):
-        name = file.split('.')[0]
+        if type == 'gt':
+            name = rename(prefix, file)
+        else:
+            name = file.split('.')[0]
+
         if file.endswith('seg.nrrd'):
             ants_img = ants.image_read(os.path.join(path, file))
             header = nrrd.read_header(os.path.join(path, file))
@@ -130,7 +141,7 @@ def checkSegFormat(base, segmentation, type):
             image = ants.image_read(os.path.join(path, file))
             image.to_file(os.path.join(save_dir, name + '.nii.gz'))
         elif file.endswith('nii.gz'):
-            shutil.copy(os.path.join(path, file), save_dir)
+            shutil.copy(os.path.join(path, file), os.path.join(save_dir, name + '.nii.gz'))
 
     return save_dir
 
@@ -246,6 +257,7 @@ def main():
     reg = args.reg
     seg_type = args.tp
     label_list = args.sl
+    current_prefix = args.cp
     if probability_map_path is not None:
         probability_map = np.loadtxt(os.path.join(base, probability_map_path))
     else:
@@ -266,9 +278,8 @@ def main():
 
     filepath = os.path.join(base, save_path, 'output_' + filename + '.csv')
     save_dir = os.path.join(base, save_path)
-    gt_output_path = checkSegFormat(base, gt_path, 'gt')
-    pred_output_path = checkSegFormat(base, pred_path, 'pred')
-
+    gt_output_path = checkSegFormat(base, gt_path, 'gt', current_prefix)
+    pred_output_path = checkSegFormat(base, pred_path, 'pred', current_prefix)
     try:
         os.mkdir(save_dir)
     except:
@@ -297,6 +308,9 @@ def main():
         elif reg and seg_type == 'NC':
             file_name = os.path.basename(i).split(
                 '.')[0].split('_')[3] + '_' + os.path.basename(i).split('.')[0].split('_')[4]
+            file_name1 = os.path.basename(i).split('.')[0]
+        elif reg and seg_type == 'HT':
+            file_name = os.path.basename(i).split('.')[0].split('_')[2]
             file_name1 = os.path.basename(i).split('.')[0]
         else:
             file_name = os.path.basename(i).split('.')[0]

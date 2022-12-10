@@ -9,7 +9,7 @@ import argparse
 
 
 def parse_command_line():
-    print('---'*10)
+    print('-----'*10)
     print('Parsing Command Line Arguments')
     parser = argparse.ArgumentParser(
         description='pipeline for dataset nnUNet preprocessing')
@@ -26,18 +26,18 @@ def parse_command_line():
 
 
 def split_and_registration(template, target, base, images_path, seg_path, fomat, checked=False, has_label=False):
-    print('---'*10)
+    print('-----'*10)
     print('Creating file paths')
     # Define the path for template, target, and segmentations (from template)
     fixed_path = os.path.join(base, images_path, template + '.' + fomat)
     moving_path = os.path.join(base, images_path, target + '.' + fomat)
     images_output = os.path.join(base, 'imagesRS/', target + '.nii.gz')
-    print('---'*10)
+    print('-----'*10)
     print('Reading in the template and target image')
     # Read the template and target image
     template_image = ants.image_read(fixed_path)
     target_image = ants.image_read(moving_path)
-    print('---'*10)
+    print('-----'*10)
     print('Performing the template and target image registration')
     transform_forward = ants.registration(fixed=template_image, moving=target_image,
                                           type_of_transform="Similarity", verbose=False)
@@ -46,11 +46,11 @@ def split_and_registration(template, target, base, images_path, seg_path, fomat,
             base, seg_path, target + '.nii.gz')
         segmentation_output = os.path.join(
             base, 'labelsRS/', target + '.nii.gz')
-        print('---'*10)
+        print('-----'*10)
         print('Reading in the segmentation')
         # Split segmentations into individual components
         segment_target = ants.image_read(segmentation_path)
-        print('---'*10)
+        print('-----'*10)
         print('Applying the transformation for label propagation and image registration')
         predicted_targets_image = ants.apply_transforms(
             fixed=template_image,
@@ -66,14 +66,14 @@ def split_and_registration(template, target, base, images_path, seg_path, fomat,
         transformlist=transform_forward["fwdtransforms"],
         interpolator="linear",
         verbose=False)
-    print('---'*10)
+    print('-----'*10)
     print("writing out transformed template segmentation")
     reg_img.to_file(images_output)
     print('Label Propagation & Image Registration complete')
 
 
 def convert_to_one_hot(data, header, segment_indices=None):
-    print('---'*10)
+    print('-----'*10)
     print("converting to one hot")
 
     layer_values = get_layer_values(header)

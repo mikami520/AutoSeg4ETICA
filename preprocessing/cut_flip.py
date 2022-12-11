@@ -64,13 +64,13 @@ def crop_flip_save_file(left_img, left_seg, flipped_right_img, flipped_right_seg
     right_seg_nii = nib.Nifti1Image(
         flipped_right_seg, affine=nib_seg.affine, header=nib_seg.header)
     left_img_nii.to_filename(os.path.join(
-        output_img, 'r' + scan_id + '.nii.gz'))
+        output_img, scan_id + '1.nii.gz'))
     left_seg_nii.to_filename(os.path.join(
-        output_seg, 'r' + scan_id + '.nii.gz'))
+        output_seg, scan_id + '1.nii.gz'))
     right_img_nii.to_filename(os.path.join(
-        output_img, 'l' + scan_id + '.nii.gz'))
+        output_img, scan_id + '0.nii.gz'))
     right_seg_nii.to_filename(os.path.join(
-        output_seg, 'l' + scan_id + '.nii.gz'))
+        output_seg, scan_id + '0.nii.gz'))
 
 
 def main():

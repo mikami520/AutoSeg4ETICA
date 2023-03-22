@@ -115,12 +115,13 @@ def average_hausdorff_distance(img_np_gt, img_np_pred, spacing):
     return (gp + pg) / 2
 
 
-def checkSegFormat(base, segmentation, type, prefix):
-    path = os.path.join(base, segmentation)
+def checkSegFormat(base, segmentation, type, prefix=None):
     if type == 'gt':
         save_dir = os.path.join(base, 'gt_reformat_labels')
+        path = segmentation
     else:
         save_dir = os.path.join(base, 'pred_reformat_labels')
+        path = os.path.join(base, segmentation)
     try:
         os.mkdir(save_dir)
     except:
@@ -128,7 +129,10 @@ def checkSegFormat(base, segmentation, type, prefix):
 
     for file in os.listdir(path):
         if type == 'gt':
-            name = rename(prefix, file)
+            if prefix is not None:
+                name = rename(prefix, file)
+            else:
+                name = file.split('.')[0]
         else:
             name = file.split('.')[0]
 

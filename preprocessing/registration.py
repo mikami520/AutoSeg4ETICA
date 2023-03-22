@@ -33,14 +33,14 @@ def split_and_registration(template, target, base, images_path, seg_path, fomat,
     moving_path = os.path.join(base, images_path, target + '.' + fomat)
     images_output = os.path.join(base, 'imagesRS/', target + '.nii.gz')
     print('-----'*10)
-    print('Reading in the template and target image')
+    print(f'Reading in the template {template} and target {target} image')
     # Read the template and target image
     template_image = ants.image_read(fixed_path)
     target_image = ants.image_read(moving_path)
     print('-----'*10)
     print('Performing the template and target image registration')
     transform_forward = ants.registration(fixed=template_image, moving=target_image,
-                                          type_of_transform="Similarity", verbose=False)
+                                          type_of_transform="AffineFast", verbose=False)
     if has_label:
         segmentation_path = os.path.join(
             base, seg_path, target + '.nii.gz')
@@ -240,7 +240,7 @@ def find_template_V2(base, image_path, fomat):
         if thirdD > maxD:
             template = id
             maxD = thirdD
-
+    print(maxD, template)
     return template
 
 
@@ -280,7 +280,7 @@ def main():
     labels_output = os.path.join(base, 'labelsRS')
     fomat = checkFormat(base, images_path)
     fomat_seg = checkFormat(base, segmentation)
-    template = find_template_V2(base, images_path, fomat)
+    template = find_template(base, images_path, fomat)
     label_lists = path_to_id(os.path.join(base, segmentation), fomat_seg)
     if label_list is not None:
         matched_output = os.path.join(base, 'MatchedSegs')

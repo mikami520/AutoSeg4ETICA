@@ -22,7 +22,7 @@
 **2023.12.31** - The data preprocessing , training, inference, and evaluation code are released.
 
 ## Abstract
-Objective. Obtaining automated, objective 3-dimensional (3D)
+- Objective: Obtaining automated, objective 3-dimensional (3D)
 models of the Eustachian tube (ET) and the internal carotid
 artery (ICA) from computed tomography (CT) scans could
 provide useful navigational and diagnostic information for ET
@@ -30,9 +30,9 @@ pathologies and interventions. We aim to develop a deep
 learning (DL) pipeline to automatically segment the ET and
 ICA and use these segmentations to compute distances
 between these structures.
-Study Design. Retrospective cohort.
-Setting. Tertiary referral center.
-Methods. From a database of 30 CT scans, 60 ET and ICA pairs
+- Study Design: Retrospective cohort.
+- Setting: Tertiary referral center.
+- Methods: From a database of 30 CT scans, 60 ET and ICA pairs
 were manually segmented and used to train an nnU-Net model,
 a DL segmentation framework. These segmentations were also
 used to develop a quantitative tool to capture the magnitude
@@ -45,7 +45,7 @@ respectively. Similarly, the DSC values for the ET and ICA were
 0.578 and 0.884. The mean MDP from ET to ICA in the
 cartilaginous region was 2.6 mm (0.7-5.3 mm) and was located
 on average 1.9 mm caudal from the bony cartilaginous junction.
-Conclusion. This study describes the first end-to-end DL
+- Conclusion: This study describes the first end-to-end DL
 pipeline for automated ET and ICA segmentation and analyzes
 distances between these structures. In addition to helping to
 ensure the safe selection of patients for ET dilation, this

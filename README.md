@@ -39,7 +39,7 @@ and location of the minimum distance point (MDP) between ET
 and ICA. Performance metrics for the nnU-Net automated
 segmentations were calculated via the average Hausdorff
 distance (AHD) and dice similarity coefficient (DSC).
-Results. The AHD for the ETand ICA were 0.922 and 0.246 mm,
+- Results: The AHD for the ETand ICA were 0.922 and 0.246 mm,
 respectively. Similarly, the DSC values for the ET and ICA were
 0.578 and 0.884. The mean MDP from ET to ICA in the
 cartilaginous region was 2.6 mm (0.7-5.3 mm) and was located

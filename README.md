@@ -202,15 +202,13 @@ Once you get the closest distance (save in ```output/``` under ```base directory
 
 If you find this paper helpful, please consider citing:
 ```
-@ARTICLE{Amanian2024-zp,
-  title    = "A Deep Learning Framework for Analysis of the Eustachian Tube and
-              the Internal Carotid Artery",
-  author   = "Amanian, Ameen and Jain, Aseem and Xiao, Yuliang and Kim, Chanha
+@article{Amanian2024-zp,
+  title    = {A Deep Learning Framework for Analysis of the Eustachian Tube and the Internal Carotid Artery},
+  author   = {Amanian, Ameen and Jain, Aseem and Xiao, Yuliang and Kim, Chanha
               and Ding, Andy S and Sahu, Manish and Taylor, Russell and
               Unberath, Mathias and Ward, Bryan K and Galaiya, Deepa and Ishii,
-              Masaru and Creighton, Francis X",
-  journal  = "Otolaryngol Head Neck Surg",
-  month    =  apr,
-  year     =  2024
+              Masaru and Creighton, Francis X},
+  journal  = {Otolaryngology - Head Neck Surgery},
+  year     = {2024},
 }
 ```

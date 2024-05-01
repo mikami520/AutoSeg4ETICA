@@ -201,7 +201,7 @@ Once you get the closest distance (save in ```output/``` under ```base directory
 ##  Citing Paper
 
 If you find this paper helpful, please consider citing:
-```
+```bibtex
 @article{Amanian2024-zp,
   title    = {A Deep Learning Framework for Analysis of the Eustachian Tube and the Internal Carotid Artery},
   author   = {Amanian, Ameen and Jain, Aseem and Xiao, Yuliang and Kim, Chanha

@@ -1,7 +1,7 @@
 <h2 align="center"> [OTO–HNS2024] A Deep Learning Framework for Analysis of the Eustachian Tube and the Internal Carotid Artery </h2>
 <p align="center">
+<a href="https://aao-hnsfjournals.onlinelibrary.wiley.com/doi/10.1002/ohn.789"><img src="https://img.shields.io/badge/Wiley-Paper-red"></a>
 <a href="https://pubmed.ncbi.nlm.nih.gov/38686594/"><img src="https://img.shields.io/badge/PubMed-Link-blue"></a>
-<a href="/docs/ohn1.pdf"><img src="https://img.shields.io/badge/PDF-Paper-red"></a>
 <a href="https://github.com/mikami520/CIS2-EustachianTube"><img src="https://img.shields.io/badge/Code-Page-magenta"></a>
 </p>
 <h5 align="center"><em>Ameen Amanian, Aseem Jain, Yuliang Xiao, Chanha Kim, Andy S. Ding, Manish Sahu, Russell Taylor, Mathias Unberath, Bryan K. Ward, Deepa Galaiya, Masaru Ishii, Francis X. Creighton</em></h5>

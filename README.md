@@ -5,7 +5,7 @@
 <a href="https://www.sci-hub.ee/10.1002/ohn.789"><img src="https://img.shields.io/badge/DOI-Link-green"></a>
 <a href="https://github.com/mikami520/CIS2-EustachianTube"><img src="https://img.shields.io/badge/Code-Page-magenta"></a>
 </p>
-<h5 align="center"><em>Ameen Amanian, Aseem Jain, Yuliang Xiao, Chanha Kim, Andy S. Ding, Manish Sahu, Russell Taylor, Mathias Unberath, Bryan K. Ward, Deepa Galaiya, Masaru Ishii, Francis X Creighton</em></h5>
+<h5 align="center"><em>Ameen Amanian, Aseem Jain, Yuliang Xiao, Chanha Kim, Andy S. Ding, Manish Sahu, Russell Taylor, Mathias Unberath, Bryan K. Ward, Deepa Galaiya, Masaru Ishii, Francis X. Creighton</em></h5>
 <p align="center">
   <a href="#news">News</a> |
   <a href="#abstract">Abstract</a> |

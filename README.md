@@ -1,4 +1,4 @@
-<h2 align="center"> [OTO–Head and Neck Surgery 2024] A Deep Learning Framework for Analysis of the Eustachian Tube and the Internal Carotid Artery </h2>
+<h2 align="center"> [OTO–HNS2024] A Deep Learning Framework for Analysis of the Eustachian Tube and the Internal Carotid Artery </h2>
 <p align="center">
 <a href="https://aao-hnsfjournals.onlinelibrary.wiley.com/doi/10.1002/ohn.789"><img src="https://img.shields.io/badge/Wiley-Paper-red"></a>
 <a href="https://pubmed.ncbi.nlm.nih.gov/38686594/"><img src="https://img.shields.io/badge/PubMed-Paper-blue"></a>
@@ -17,7 +17,7 @@
 
 ## News 
 
-**2024.04.05** - Our paper is accepted to **American Academy of Otolaryngology–Head and Neck Surgery 2024**.
+**2024.04.05** - Our paper is accepted to **American Academy of Otolaryngology–Head and Neck Surgery 2024 (OTO-HNS2024)**.
 
 **2023.12.31** - The data preprocessing , training, inference, and evaluation code are released.
 

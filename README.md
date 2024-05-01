@@ -1,27 +1,72 @@
-# Automated Segmentation and Registration for Eustachian Tube Disfunction
-## Paper
+<h2 align="center"> [Otolaryngology–Head and Neck Surgery 2024] A Deep Learning Framework for Analysis of the Eustachian Tube and the Internal Carotid Artery </h2>
+<p align="center">
+<a href="https://aao-hnsfjournals.onlinelibrary.wiley.com/doi/10.1002/ohn.789"><img src="https://img.shields.io/badge/Wiley-Paper-red"></a>
+<a href="https://pubmed.ncbi.nlm.nih.gov/38686594/"><img src="https://img.shields.io/badge/PubMed-Paper-blue"></a>
+<a href="https://www.sci-hub.ee/10.1002/ohn.789"><img src="https://img.shields.io/badge/DOI-Link-green"></a>
+<a href="https://github.com/mikami520/CIS2-EustachianTube"><img src="https://img.shields.io/badge/Code-Page-magenta"></a>
+</p>
+<h5 align="center"><em>Ameen Amanian, Aseem Jain, Yuliang Xiao, Chanha Kim, Andy S. Ding, Manish Sahu, Russell Taylor, Mathias Unberath, Bryan K. Ward, Deepa Galaiya, Masaru Ishii, Francis X Creighton</em></h5>
+<p align="center">
+  <a href="#news">News</a> |
+  <a href="#abstract">Abstract</a> |
+  <a href="#installation">Installation</a> |
+  <a href="#train">Train</a> |
+  <a href="#inference">Inference</a> |
+  <a href="#evaluation">Evaluation</a>
+</p>
 
-This repository provides the official implementation of training and evaluting nnUNet in the following paper:
+## News 
 
-<b>A Deep Learning Framework for Analysis of the Eustachian Tube and the Internal Carotid Artery</b> <br/>
-[Ameen Amanian](https://scholar.google.com/citations?user=poRMUsEAAAAJ&hl=en), [Aseem Jain](https://ciis.lcsr.jhu.edu/doku.php?id=courses:456:2023:projects&s[]=aseem&s[]=jain), [Yuliang Xiao](https://mikami520.github.io), [Chanha Kim](https://www.facebook.com/chanha.kim.7/?locale=ms_MY&paipv=0&eav=AfavIk_jv9d4DX0arEt8wzzWeryeFuIkGwxPJ6Kt7eFMcxoNNg2BhnAeJjBYaIWyQbQ&_rdr), [Andy S. Ding](https://www.researchgate.net/profile/Andy-Ding-3), [Manish Sahu](https://sahumanish.github.io/), [Russell H. Taylor](https://engineering.jhu.edu/faculty/russell-taylor/), [Mathias Unberath](https://mathiasunberath.github.io/), [Bryan K. Ward](https://profiles.hopkinsmedicine.org/provider/Bryan+K.+Ward/2705019), [Deepa Galaiya](https://profiles.hopkinsmedicine.org/provider/Deepa+J.+Galaiya/2703746), [Masaru Ishii](https://profiles.hopkinsmedicine.org/provider/Masaru+Ishii/2708814), [Francis X. Creighton](https://profiles.hopkinsmedicine.org/provider/Francis+Lin/2708815) <br/>
-Johns Hopkins University <br/>
-American Academy of Otolaryngology–Head and Neck Surgery, 2024 <br/>
-[paper](https://aao-hnsfjournals.onlinelibrary.wiley.com/doi/10.1002/ohn.789) | [code](https://github.com/mikami520/CIS2-EustachianTube)
+**2024.04.05** - Our paper is accepted to **American Academy of Otolaryngology–Head and Neck Surgery 2024**.
 
-## Usage
-### Step 0: Fork This GitHub Repository 
+**2023.12.31** - The data preprocessing , training, inference, and evaluation code are released.
+
+## Abstract
+Objective. Obtaining automated, objective 3-dimensional (3D)
+models of the Eustachian tube (ET) and the internal carotid
+artery (ICA) from computed tomography (CT) scans could
+provide useful navigational and diagnostic information for ET
+pathologies and interventions. We aim to develop a deep
+learning (DL) pipeline to automatically segment the ET and
+ICA and use these segmentations to compute distances
+between these structures.
+Study Design. Retrospective cohort.
+Setting. Tertiary referral center.
+Methods. From a database of 30 CT scans, 60 ET and ICA pairs
+were manually segmented and used to train an nnU-Net model,
+a DL segmentation framework. These segmentations were also
+used to develop a quantitative tool to capture the magnitude
+and location of the minimum distance point (MDP) between ET
+and ICA. Performance metrics for the nnU-Net automated
+segmentations were calculated via the average Hausdorff
+distance (AHD) and dice similarity coefficient (DSC).
+Results. The AHD for the ETand ICA were 0.922 and 0.246 mm,
+respectively. Similarly, the DSC values for the ET and ICA were
+0.578 and 0.884. The mean MDP from ET to ICA in the
+cartilaginous region was 2.6 mm (0.7-5.3 mm) and was located
+on average 1.9 mm caudal from the bony cartilaginous junction.
+Conclusion. This study describes the first end-to-end DL
+pipeline for automated ET and ICA segmentation and analyzes
+distances between these structures. In addition to helping to
+ensure the safe selection of patients for ET dilation, this
+method can facilitate large-scale studies exploring the
+relationship between ET pathologies and the 3D shape of
+the ET.
+
+## Installation
+### Step 1: Fork This GitHub Repository 
 ```bash
 git clone https://github.com/mikami520/CIS2-EustachianTube.git
 ```
 
-### Step 1: Set Up Two Environments Using requirements.txt Files (virtual environment is recommended)
+### Step 2: Set Up Two Environments Using requirements.txt Files (virtual environment is recommended)
 ```bash
 pip install -r requirements.txt
 ```
 
-### Step 2: Preprocess Datasets
-#### Step 2.1: Register Data to Template
+## Preprocessing
+### Step 1: Preprocess Datasets
+#### Step 1.1: Register Data to Template
 Activate scripting environment
 ```bash
 cd <path to repo>/preprocessing
@@ -42,7 +87,7 @@ Final output of registered images and segmentations will be saved in
 ```text
 imagesRS/ && labelsRS/
 ```
-#### Step 2.2: Create Datasplit for Training/Testing. Validation will be chosen automatically by nnUNet (filename format should be taskname_xxx.nii.gz)
+#### Step 1.2: Create Datasplit for Training/Testing. Validation will be chosen automatically by nnUNet (filename format should be taskname_xxx.nii.gz)
 ```bash
 python3 split_data.py -bp <full path of base dir> -ip <relative path to nifti images dir (imagesRS)> -sp <relative path to nifti segmentations dir (labelsRS)> -sl <a list of label name and corresponding label value> -ti <task id for nnUNet preprocessing> -tn <name of task>
 ```
@@ -51,7 +96,7 @@ For example
 python3 split_data.py -bp /Users/mikamixiao/Desktop -ip imagesRS -sp labelsRS -sl 1 L-MS 2 R-MS -ti 001 -tn Sinus
 ```
 
-### Step 3: Setup Bashrc
+### Step 2: Setup Bashrc
 
 Edit your `~/.bashrc` file with `gedit ~/.bashrc` or `nano ~/.bashrc`. At the end of the file, add the following lines:
 
@@ -69,7 +114,7 @@ source ~/.bashrc
 
 This will deactivate your current conda environment.
 
-### Step 4: Verify and Preprocess Data
+### Step 3: Verify and Preprocess Data
 Activate nnUNet environment
 ```bash
 source <virtual environment folder name>/bin/activate
@@ -80,8 +125,8 @@ nnUNet_plan_and_preprocess -t <task_id> --verify_dataset_integrity
 ```
 Potential Error: You may need to edit the dataset.json file so that the labels are sequential. If you have at least 10 labels, then labels `10, 11, 12,...` will be arranged before labels `2, 3, 4, ...`. Doing this in a text editor is completely fine!
 
-### Step 5: Begin Training
-
+## Train
+To train the model:
 ```bash
 nnUNet_train 3d_fullres nnUNetTrainerV2 Task<task_num>_TemporalBone Y --npz
 ```
@@ -90,8 +135,8 @@ nnUNet_train 3d_fullres nnUNetTrainerV2 Task<task_num>_TemporalBone Y --npz
 
 `--npz` makes the models save the softmax outputs (uncompressed, large files) during the final validation. It should only be used if you are training multiple configurations, which requires `nnUNet_find_best_configuration` to find the best model. We omit this by default.
 
-### Step 6: Run Inference
-
+## Inference
+To run inference on trained checkpoints and obtain evaluation results:
 `nnUNet_find_best_configuration` will print a string to the terminal with the inference commands you need to use.
 The easiest way to run inference is to simply use these commands.
 
@@ -122,8 +167,8 @@ Note that per default, inference will be done with all available folds. We very 
 Thus, all 5 folds must have been trained prior to running inference. The list of available folds nnU-Net found will be
 printed at the start of the inference.
 
-### Step 7: Evaluate Inference
-#### To compute the dice score, average hausdorff distance and weighted hausdorff distance:
+## Evaluation
+To compute the dice score, average hausdorff distance and weighted hausdorff distance:
 ```bash
 cd <path to repo>/metrics
 ```
@@ -150,3 +195,20 @@ Currently, we split the skeleton alongside the x axis and from ear end to nasal.
 python3 distanceVertex2Mesh.py -bp <full path of base dir> -gp <relative path of ground truth dir> -pp <relative path of predicted segmentations dir>
 ```
 Once you get the closest distance (save in ```output/``` under ```base directory```) from prediction to ground truth, you can easily draw the heat map and use the color bar to show the change of differences (```ParaView``` is recommended)
+
+##  Citing Paper
+
+If you find this paper helpful, please consider citing:
+```
+@ARTICLE{Amanian2024-zp,
+  title    = "A Deep Learning Framework for Analysis of the Eustachian Tube and
+              the Internal Carotid Artery",
+  author   = "Amanian, Ameen and Jain, Aseem and Xiao, Yuliang and Kim, Chanha
+              and Ding, Andy S and Sahu, Manish and Taylor, Russell and
+              Unberath, Mathias and Ward, Bryan K and Galaiya, Deepa and Ishii,
+              Masaru and Creighton, Francis X",
+  journal  = "Otolaryngol Head Neck Surg",
+  month    =  apr,
+  year     =  2024
+}
+```

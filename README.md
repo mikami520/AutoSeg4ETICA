@@ -51,6 +51,9 @@ ensure the safe selection of patients for ET dilation, this
 method can facilitate large-scale studies exploring the
 relationship between ET pathologies and the 3D shape of
 the ET.
+![](assets/method.png)
+<figcaption align = "center"><b>Figure 1: Overview of Workflow.
+ </b></figcaption>
 
 ## Installation
 ### Step 1: Fork This GitHub Repository 

@@ -58,7 +58,7 @@ the ET.
 ## Installation
 ### Step 1: Fork This GitHub Repository 
 ```bash
-git clone https://github.com/mikami520/CIS2-EustachianTube.git
+git clone https://github.com/mikami520/CIS2-EustachianTube.git && cd CIS2-EustachianTube
 ```
 
 ### Step 2: Set Up Two Environments Using requirements.txt Files (virtual environment is recommended)

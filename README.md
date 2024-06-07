@@ -16,9 +16,9 @@
 
 ## News 
 
-**2024.04.05** - Our paper is accepted to **American Academy of Otolaryngology–Head and Neck Surgery 2024 (OTO-HNS2024)**.
+**2024.04.30** - The data preprocessing , training, inference, and evaluation code are released.
 
-**2023.12.31** - The data preprocessing , training, inference, and evaluation code are released.
+**2024.04.05** - Our paper is accepted to **American Academy of Otolaryngology–Head and Neck Surgery 2024 (OTO-HNS2024)**.
 
 ## Abstract
 - Objective: Obtaining automated, objective 3-dimensional (3D)

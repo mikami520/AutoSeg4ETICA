@@ -56,49 +56,65 @@ the ET.
  </b></figcaption>
 
 ## Installation
+
 ### Step 1: Fork This GitHub Repository 
+
 ```bash
 git clone https://github.com/mikami520/AutoSeg4ETICA.git && cd AutoSeg4ETICA
 ```
 
 ### Step 2: Set Up Two Environments Using requirements.txt Files (virtual environment is recommended)
+
 ```bash
 pip install -r requirements.txt
+source /path/to/VIRTUAL_ENVIRONMENT/bin/activate
 ```
 
 ## Preprocessing
-### Step 1: Preprocess Datasets
-#### Step 1.1: Register Data to Template
-Activate scripting environment
+
+### Step 1: Register Data to Template
+
 ```bash
 cd <path to repo>/preprocessing
 ```
+
 Register data to template (can be used for multiple segmentations propagation)
+
 ```bash
-python3 registration.py -bp <full path of base dir> -ip <relative path to nifti images dir> -sp <relative path to segmentations dir> 
+python registration.py -bp <full path of base dir> -ip <relative path to nifti images dir> -sp <relative path to segmentations dir> 
 ```
+
 If you want to make sure correspondence of the name and value of segmentations, you can add the following commands after above command
+
 ```bash
 -sl LabelValue1 LabelName1 LabelValue2 LabelName2 LabelValue3 LabelName3 ...
 ```
+
 For example, if I have two labels for maxillary sinus named L-MS and R-MS
+
 ```bash
-python3 registration.py -bp /Users/mikamixiao/Desktop -ip images -sp labels -sl 1 L-MS 2 R-MS
+python registration.py -bp /Users/mikamixiao/Desktop -ip images -sp labels -sl 1 L-MS 2 R-MS
 ```
+
 Final output of registered images and segmentations will be saved in 
+
 ```text
 imagesRS/ && labelsRS/
 ```
-#### Step 1.2: Create Datasplit for Training/Testing. Validation will be chosen automatically by nnUNet (filename format should be taskname_xxx.nii.gz)
+
+### Step 2: Create Datasplit for Training/Testing. Validation will be chosen automatically by nnUNet (filename format should be taskname_xxx.nii.gz)
+
 ```bash
-python3 split_data.py -bp <full path of base dir> -ip <relative path to nifti images dir (imagesRS)> -sp <relative path to nifti segmentations dir (labelsRS)> -sl <a list of label name and corresponding label value> -ti <task id for nnUNet preprocessing> -tn <name of task>
-```
-For example
-```bash
-python3 split_data.py -bp /Users/mikamixiao/Desktop -ip imagesRS -sp labelsRS -sl 1 L-MS 2 R-MS -ti 001 -tn Sinus
+python split_data.py -bp <full path of base dir> -ip <relative path to nifti images dir (imagesRS)> -sp <relative path to nifti segmentations dir (labelsRS)> -sl <a list of label name and corresponding label value> -ti <task id for nnUNet preprocessing> -tn <name of task>
 ```
 
-### Step 2: Setup Bashrc
+For example
+
+```bash
+python split_data.py -bp /Users/mikamixiao/Desktop -ip imagesRS -sp labelsRS -sl 1 L-MS 2 R-MS -ti 001 -tn Sinus
+```
+
+### Step 3: Setup Bashrc
 
 Edit your `~/.bashrc` file with `gedit ~/.bashrc` or `nano ~/.bashrc`. At the end of the file, add the following lines:
 
@@ -116,19 +132,26 @@ source ~/.bashrc
 
 This will deactivate your current conda environment.
 
-### Step 3: Verify and Preprocess Data
+### Step 4: Verify and Preprocess Data
+
 Activate nnUNet environment
+
 ```bash
-source <virtual environment folder name>/bin/activate
+source /path/to/VIRTUAL_ENVIRONMENT/bin/activate
 ```
+
 Run nnUNet preprocessing script.
+
 ```bash
 nnUNet_plan_and_preprocess -t <task_id> --verify_dataset_integrity
 ```
+
 Potential Error: You may need to edit the dataset.json file so that the labels are sequential. If you have at least 10 labels, then labels `10, 11, 12,...` will be arranged before labels `2, 3, 4, ...`. Doing this in a text editor is completely fine!
 
 ## Train
+
 To train the model:
+
 ```bash
 nnUNet_train 3d_fullres nnUNetTrainerV2 Task<task_num>_TemporalBone Y --npz
 ```
@@ -138,6 +161,7 @@ nnUNet_train 3d_fullres nnUNetTrainerV2 Task<task_num>_TemporalBone Y --npz
 `--npz` makes the models save the softmax outputs (uncompressed, large files) during the final validation. It should only be used if you are training multiple configurations, which requires `nnUNet_find_best_configuration` to find the best model. We omit this by default.
 
 ## Inference
+
 To run inference on trained checkpoints and obtain evaluation results:
 `nnUNet_find_best_configuration` will print a string to the terminal with the inference commands you need to use.
 The easiest way to run inference is to simply use these commands.
@@ -170,32 +194,45 @@ Thus, all 5 folds must have been trained prior to running inference. The list of
 printed at the start of the inference.
 
 ## Evaluation
+
 To compute the dice score, average hausdorff distance and weighted hausdorff distance:
+
 ```bash
 cd <path to repo>/metrics
 ```
+
 Run the metrics.py to output a CSV file that contain the dice score and hausdorff distance for each segmentation:
+
 ```bash
-python3 metrics.py -bp <full path of base dir> -gp <relative path of ground truth dir> -pp <relative path of predicted segmentations dir> -sp <save dir> -vt <Validation type: 'dsc', 'ahd', 'whd'>
+python metrics.py -bp <full path of base dir> -gp <relative path of ground truth dir> -pp <relative path of predicted segmentations dir> -sp <save dir> -vt <Validation type: 'dsc', 'ahd', 'whd'>
 ```
+
 Users can choose any combinations of evaluation types among these three choices. 
+
 ```text
 dsc: Dice Score
 ahd: Average Hausdorff Distance
 whd: Weighted Hausdorff Distance
 ``` 
+
 If choosing ```whd``` and you do not have a probability map, you can use ```get_probability_map.py```to obtain one. Here is the way to use:
+
 ```bash
-python3 get_probability_map.py -bp <full path of base dir> -pp <relative path of predicted segmentations dir> -rr <ratio to split skeleton> -ps <probability sequences>
+python get_probability_map.py -bp <full path of base dir> -pp <relative path of predicted segmentations dir> -rr <ratio to split skeleton> -ps <probability sequences>
 ```
+
 Currently, we split the skeleton alongside the x axis and from ear end to nasal. Please make sure the probability sequences are matched to the splitted regions. The output probability map which is a text file will be stored in ```output/```under the ```base directory```. Once obtaining the probability map, you can import your customized probability map by adding following command when using ```metrics.py```:
+
 ```bash
 -pm <relative path of probability map>
 ```
+
 #### To draw the heat map to see the failing part of prediction:
+
 ```bash
-python3 distanceVertex2Mesh.py -bp <full path of base dir> -gp <relative path of ground truth dir> -pp <relative path of predicted segmentations dir>
+python distanceVertex2Mesh.py -bp <full path of base dir> -gp <relative path of ground truth dir> -pp <relative path of predicted segmentations dir>
 ```
+
 Once you get the closest distance (save in ```output/``` under ```base directory```) from prediction to ground truth, you can easily draw the heat map and use the color bar to show the change of differences (```ParaView``` is recommended)
 
 ##  Citing Paper

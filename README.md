@@ -1,4 +1,3 @@
-![AutoSeg4ETICA](https://socialify.git.ci/mikami520/AutoSeg4ETICA/image?description=1&font=Source%20Code%20Pro&forks=1&issues=1&language=1&name=1&owner=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Light)
 <h2 align="center"> [OTO–HNS2024] A Deep Learning Framework for Analysis of the Eustachian Tube and the Internal Carotid Artery </h2>
 <p align="center">
 <a href="https://aao-hnsfjournals.onlinelibrary.wiley.com/doi/10.1002/ohn.789"><img src="https://img.shields.io/badge/Wiley-Paper-red"></a>

@@ -29,8 +29,7 @@ pathologies and interventions. We aim to develop a deep
 learning (DL) pipeline to automatically segment the ET and
 ICA and use these segmentations to compute distances
 between these structures.
-- Study Design: Retrospective cohort.
-- Setting: Tertiary referral center.
+
 - Methods: From a database of 30 CT scans, 60 ET and ICA pairs
 were manually segmented and used to train an nnU-Net model,
 a DL segmentation framework. These segmentations were also
@@ -39,11 +38,13 @@ and location of the minimum distance point (MDP) between ET
 and ICA. Performance metrics for the nnU-Net automated
 segmentations were calculated via the average Hausdorff
 distance (AHD) and dice similarity coefficient (DSC).
+
 - Results: The AHD for the ETand ICA were 0.922 and 0.246 mm,
 respectively. Similarly, the DSC values for the ET and ICA were
 0.578 and 0.884. The mean MDP from ET to ICA in the
 cartilaginous region was 2.6 mm (0.7-5.3 mm) and was located
 on average 1.9 mm caudal from the bony cartilaginous junction.
+
 - Conclusion: This study describes the first end-to-end DL
 pipeline for automated ET and ICA segmentation and analyzes
 distances between these structures. In addition to helping to
@@ -51,6 +52,7 @@ ensure the safe selection of patients for ET dilation, this
 method can facilitate large-scale studies exploring the
 relationship between ET pathologies and the 3D shape of
 the ET.
+
 ![](assets/method.png)
 <figcaption align = "center"><b>Figure 1: Overview of Workflow.
  </b></figcaption>

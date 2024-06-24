@@ -53,9 +53,11 @@ method can facilitate large-scale studies exploring the
 relationship between ET pathologies and the 3D shape of
 the ET.
 
-![](assets/method.png)
-<figcaption align = "center"><b>Figure 1: Overview of Workflow.
- </b></figcaption>
+<p align="center">
+  <img src="assets/method.png" />
+  <b>Figure 1: Overview of Workflow
+ </b>
+</p>
 
 ## Installation
 

@@ -250,7 +250,7 @@ If you find this paper helpful, please consider citing:
   publisher={Wiley Online Library}
 }
 ```
-## Star History
+# Star History
 <p align="center">
   <a href="https://star-history.com/#mikami520/AutoSeg4ETICA&Date">
     <picture>

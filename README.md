@@ -260,3 +260,9 @@ If you find this paper helpful, please consider citing:
    </picture>
   </a>
 </p>
+
+---
+<div align="center">
+<p>Developed by Chris Xiao | Johns Hopkins University</p>
+<p>© 2024 All Rights Reserved</p>
+</div>
